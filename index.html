@@ -9,15 +9,53 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0a0a14;color:#e0e0e0;min-height:100vh;overflow-x:hidden}
 canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
-#load{position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a14;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.5s}
+
+/* === LOADING === */
+#load{position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a14;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s;overflow:hidden}
 #load.out{opacity:0;pointer-events:none}
-#load img{width:90px;height:90px;border-radius:50%;border:3px solid #7c5cfc;margin-bottom:18px;animation:pulse 2s ease-in-out infinite}
-@keyframes pulse{0%,100%{transform:scale(1);box-shadow:0 0 20px rgba(124,92,252,0.3)}50%{transform:scale(1.05);box-shadow:0 0 40px rgba(124,92,252,0.5)}}
-#load h2{color:#fff;letter-spacing:3px;font-size:18px;margin-bottom:6px}
-#load .sub{color:#555;font-size:11px;letter-spacing:2px;margin-bottom:24px;min-height:16px}
-.bw{width:180px;height:3px;background:#151525;border-radius:2px;overflow:hidden;margin-bottom:8px}
-.bf{height:100%;width:0;background:linear-gradient(90deg,#5c3cdc,#7c5cfc,#a78bfa);border-radius:2px;transition:width 0.1s}
-#load .pct{color:#7c5cfc;font-size:11px;font-family:monospace;letter-spacing:2px}
+
+/* Animated grid bg */
+.grid-bg{position:absolute;top:0;left:0;right:0;bottom:0;background-image:linear-gradient(rgba(124,92,252,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(124,92,252,.06) 1px,transparent 1px);background-size:40px 40px;animation:gridMove 4s linear infinite}
+@keyframes gridMove{to{background-position:40px 40px}}
+
+/* Scan line */
+.scan{position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(124,92,252,.6),transparent);animation:scanDown 2.5s ease-in-out infinite;box-shadow:0 0 20px rgba(124,92,252,.3)}
+@keyframes scanDown{0%{top:-2px}100%{top:100%}}
+
+/* Glow orbs */
+.orb{position:absolute;border-radius:50%;filter:blur(60px);animation:orbFloat 6s ease-in-out infinite}
+.orb1{width:200px;height:200px;background:rgba(124,92,252,.15);top:10%;left:-50px;animation-delay:0s}
+.orb2{width:150px;height:150px;background:rgba(92,60,220,.12);bottom:15%;right:-40px;animation-delay:2s}
+.orb3{width:120px;height:120px;background:rgba(167,139,250,.1);top:50%;left:50%;animation-delay:4s}
+@keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(30px,-20px) scale(1.1)}50%{transform:translate(-20px,30px) scale(.9)}75%{transform:translate(20px,20px) scale(1.05)}}
+
+/* Center content */
+.load-center{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center}
+
+/* Hex ring */
+.hex-ring{width:100px;height:100px;position:relative;margin-bottom:24px}
+.hex-ring svg{width:100%;height:100%;animation:hexSpin 4s linear infinite}
+@keyframes hexSpin{to{transform:rotate(360deg)}}
+.hex-inner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:28px;animation:iconPulse 2s ease-in-out infinite}
+@keyframes iconPulse{0%,100%{opacity:.7;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}}
+
+.load-title{color:#fff;letter-spacing:4px;font-size:20px;font-weight:700;margin-bottom:6px;text-shadow:0 0 20px rgba(124,92,252,.4)}
+.load-sub{color:#555;font-size:11px;letter-spacing:2px;margin-bottom:28px;min-height:16px;transition:opacity .3s}
+
+/* Progress */
+.bar-wrap{width:200px;height:3px;background:#151525;border-radius:2px;overflow:hidden;margin-bottom:10px;position:relative}
+.bar-fill{height:100%;width:0;background:linear-gradient(90deg,#5c3cdc,#7c5cfc,#a78bfa);border-radius:2px;transition:width .1s;box-shadow:0 0 10px rgba(124,92,252,.5)}
+.bar-glow{position:absolute;top:-4px;height:11px;width:30px;background:rgba(124,92,252,.3);border-radius:50%;filter:blur(4px);transition:left .1s}
+.load-pct{color:#7c5cfc;font-size:11px;font-family:monospace;letter-spacing:2px}
+
+/* Corners */
+.corner{position:absolute;width:20px;height:20px;border-color:#7c5cfc;border-style:solid;border-width:0;opacity:.3}
+.corner.tl{top:20px;left:20px;border-top-width:2px;border-left-width:2px}
+.corner.tr{top:20px;right:20px;border-top-width:2px;border-right-width:2px}
+.corner.bl{bottom:20px;left:20px;border-bottom-width:2px;border-left-width:2px}
+.corner.br{bottom:20px;right:20px;border-bottom-width:2px;border-right-width:2px}
+
+/* === LOGIN === */
 #login{display:none;min-height:100vh;flex-direction:column;align-items:center;justify-content:center;padding:24px;position:relative;z-index:1}
 #login.show{display:flex;animation:fu .6s ease}
 @keyframes fu{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
@@ -35,6 +73,8 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 .bl{width:100%;padding:13px;background:linear-gradient(135deg,#7c5cfc,#5c3cdc);color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:2px;box-shadow:0 6px 20px rgba(124,92,252,.35);position:relative;overflow:hidden}
 .bl em{position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);animation:sh 2.5s ease-in-out infinite;font-style:normal}
 @keyframes sh{0%{left:-100%}50%{left:100%}100%{left:100%}}
+
+/* === DASHBOARD === */
 .se{font-size:11px;font-weight:600;color:#555;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;padding-left:4px}
 .gr{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
 .tc{background:linear-gradient(145deg,#111122,#0d0d1a);border:1px solid #1e1e3a;border-radius:16px;padding:16px 10px;text-align:center;cursor:pointer;transition:transform .2s}
@@ -60,12 +100,34 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 </head>
 <body>
 <canvas id="bg"></canvas>
-<div id="load"><img src="logo.jpg" alt="" onerror="this.style.display='none'"><h2>J.HUYNH BOT</h2><div class="sub" id="ls">CONNECTING...</div><div class="bw"><div class="bf" id="bf"></div></div><div class="pct" id="lp">0%</div></div>
+
+<!-- LOADING -->
+<div id="load">
+<div class="grid-bg"></div>
+<div class="scan"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+<div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+<div class="load-center">
+<div class="hex-ring"><svg viewBox="0 0 100 100"><polygon points="50,2 93,25 93,75 50,98 7,75 7,25" fill="none" stroke="#7c5cfc" stroke-width="1.5" opacity=".4"/><polygon points="50,12 83,30 83,70 50,88 17,70 17,30" fill="none" stroke="#a78bfa" stroke-width="1" opacity=".2"/></svg><div class="hex-inner">&#x26A1;</div></div>
+<div class="load-title">J.HUYNH BOT</div>
+<div class="load-sub" id="ls">CONNECTING...</div>
+<div class="bar-wrap"><div class="bar-fill" id="bf"></div><div class="bar-glow" id="bg2" style="left:0"></div></div>
+<div class="load-pct" id="lp">0%</div>
+</div>
+</div>
+
+<!-- LOGIN -->
 <div id="login"><div class="card"><img class="logo" src="logo.jpg" alt="" onerror="this.style.display='none'"><h1>J.HUYNH BOT</h1><div class="sub2">STRIPE &amp; ADYEN CHECKOUT</div><div class="dv"></div><div class="aw"><div class="ar"></div><div class="ai" id="av">?</div></div><div style="font-size:16px;font-weight:600;color:#fff;margin-bottom:5px" id="uN">User</div><div style="display:inline-block;font-size:11px;color:#7c5cfc;font-family:monospace;background:#0f0f1f;padding:3px 14px;border-radius:20px;border:1px solid #1e1e3a;margin-bottom:24px" id="uI">ID: 0</div><br><button class="bl" onclick="doLogin()"><em></em>LOGIN</button></div></div>
+
+<!-- DASHBOARD -->
 <div id="dash"><div style="display:flex;align-items:center;gap:12px;padding:14px;background:linear-gradient(145deg,#111122,#0d0d1a);border-radius:16px;margin-bottom:18px;border:1px solid #1e1e3a"><div id="dA" style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#7c5cfc,#5c3cdc);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0">?</div><div style="flex:1"><div id="dN" style="font-size:14px;font-weight:600;color:#fff">User</div><div id="dI" style="font-size:10px;color:#666;font-family:monospace">ID: 0</div></div><div style="padding:3px 9px;border-radius:20px;font-size:9px;font-weight:600;background:#0d1f0d;color:#4caf50;border:1px solid #1a3a1a">ONLINE</div></div>
 <div class="se">Stripe (/co)</div><div class="gr"><div class="tc s1" onclick="openP('sc')"><div class="ti">&#x1F4B3;</div><div class="tn">Charge</div><div class="td">Stripe checkout</div></div><div class="tc s1" onclick="openP('sb')"><div class="ti">&#x1F3B0;</div><div class="tn">BIN Charge</div><div class="td">Auto-gen BIN</div></div></div>
 <div class="se">Adyen (/ay)</div><div class="gr"><div class="tc s2" onclick="openP('ac')"><div class="ti">&#x26A1;</div><div class="tn">Adyen Charge</div><div class="td">Adyen checkout</div></div><div class="tc s2" onclick="openP('ab')"><div class="ti">&#x1F504;</div><div class="tn">Adyen BIN</div><div class="td">Auto BIN loop</div></div></div>
 <div class="se">Utilities</div><div class="gr"><div class="tc s3" onclick="openP('px')"><div class="ti">&#x1F310;</div><div class="tn">Proxy</div><div class="td">Manage proxies</div></div><div class="tc s4" onclick="openP('st')"><div class="ti">&#x1F4CA;</div><div class="tn">Status</div><div class="td">Account info</div></div><div class="tc s5" onclick="openP('cg')"><div class="ti">&#x1F0CF;</div><div class="tn">Card Gen</div><div class="td">Generate cards</div></div><div class="tc s6" onclick="openP('rd')"><div class="ti">&#x1F511;</div><div class="tn">Redeem</div><div class="td">Premium code</div></div></div></div>
+
+<!-- PANELS -->
 <div class="ov" id="ov" onclick="closeP()"></div>
 <div class="pn" id="p-sc"><div class="ph"></div><div class="pt">Stripe Charge</div><div class="ig"><label>URL</label><input id="i-sc-u"></div><div class="ig"><label>Cards</label><textarea id="i-sc-c" placeholder="cc|mm|yy|cvv"></textarea></div><button class="sb" onclick="send('co')">Charge</button><div class="rb" id="r-sc"></div></div>
 <div class="pn" id="p-sb"><div class="ph"></div><div class="pt">Stripe BIN</div><div class="ig"><label>URL</label><input id="i-sb-u"></div><div class="ig"><label>BIN</label><input id="i-sb-b" placeholder="474472"></div><button class="sb" onclick="send('co-bin')">Charge</button><div class="rb" id="r-sb"></div></div>
@@ -75,6 +137,7 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 <div class="pn" id="p-st"><div class="ph"></div><div class="pt">Status</div><button class="sb" onclick="send('mystatus')">Check</button><div class="rb" id="r-st"></div></div>
 <div class="pn" id="p-cg"><div class="ph"></div><div class="pt">Card Gen</div><div class="ig"><label>BIN</label><input id="i-cg-b" placeholder="474472"></div><div class="ig"><label>Amount</label><input type="number" id="i-cg-a" value="10"></div><button class="sb" onclick="send('gen')">Generate</button><div class="rb" id="r-cg"></div></div>
 <div class="pn" id="p-rd"><div class="ph"></div><div class="pt">Redeem</div><div class="ig"><label>Code</label><input id="i-rd-c" placeholder="Enter code"></div><button class="sb" onclick="send('redeem')">Redeem</button><div class="rb" id="r-rd"></div></div>
+
 <script>
 try{
 var tg=window.Telegram&&window.Telegram.WebApp?window.Telegram.WebApp:null;
@@ -85,8 +148,8 @@ var cv=document.getElementById('bg'),cx=cv.getContext('2d'),pts=[];
 function rsz(){cv.width=window.innerWidth;cv.height=window.innerHeight;}rsz();window.addEventListener('resize',rsz);
 for(var i=0;i<35;i++)pts.push({x:Math.random()*cv.width,y:Math.random()*cv.height,r:Math.random()*1.5+.5,dx:(Math.random()-.5)*.3,dy:(Math.random()-.5)*.3,o:Math.random()*.25+.08});
 function drw(){cx.clearRect(0,0,cv.width,cv.height);for(var i=0;i<pts.length;i++){var p=pts[i];cx.beginPath();cx.arc(p.x,p.y,p.r,0,6.28);cx.fillStyle='rgba(124,92,252,'+p.o+')';cx.fill();p.x+=p.dx;p.y+=p.dy;if(p.x<0||p.x>cv.width)p.dx*=-1;if(p.y<0||p.y>cv.height)p.dy*=-1;for(var j=i+1;j<pts.length;j++){var dx=p.x-pts[j].x,dy=p.y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<100){cx.beginPath();cx.moveTo(p.x,p.y);cx.lineTo(pts[j].x,pts[j].y);cx.strokeStyle='rgba(124,92,252,'+(0.05*(1-d/100))+')';cx.lineWidth=.5;cx.stroke();}}}requestAnimationFrame(drw);}drw();
-var msgs=['CONNECTING...','LOADING...','INIT STRIPE...','INIT ADYEN...','READY'],prog=0,mi=0,bf=document.getElementById('bf'),lp=document.getElementById('lp'),ls=document.getElementById('ls');
-var li=setInterval(function(){prog+=Math.random()*9+3;if(prog>100)prog=100;bf.style.width=prog+'%';lp.textContent=Math.round(prog)+'%';var ni=Math.min(Math.floor(prog/22),msgs.length-1);if(ni!==mi){mi=ni;ls.textContent=msgs[mi];}if(prog>=100){clearInterval(li);setTimeout(function(){document.getElementById('load').classList.add('out');setTimeout(function(){document.getElementById('load').style.display='none';showL();},500);},300);}},100);
+var msgs=['CONNECTING...','LOADING MODULES...','INIT STRIPE...','INIT ADYEN...','READY'],prog=0,mi=0,bf=document.getElementById('bf'),bg2=document.getElementById('bg2'),lp=document.getElementById('lp'),ls=document.getElementById('ls');
+var li=setInterval(function(){prog+=Math.random()*9+3;if(prog>100)prog=100;bf.style.width=prog+'%';bg2.style.left=Math.max(0,prog-8)+'%';lp.textContent=Math.round(prog)+'%';var ni=Math.min(Math.floor(prog/22),msgs.length-1);if(ni!==mi){mi=ni;ls.textContent=msgs[mi];}if(prog>=100){clearInterval(li);setTimeout(function(){document.getElementById('load').classList.add('out');setTimeout(function(){document.getElementById('load').style.display='none';showL();},600);},400);}},100);
 function sA(el,url,fb){if(url)el.innerHTML='<img src="'+url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';else el.textContent=fb;}
 function showL(){document.getElementById('login').classList.add('show');sA(document.getElementById('av'),photo,ini);document.getElementById('uN').textContent=full;document.getElementById('uI').textContent='ID: '+uid;}
 window.doLogin=function(){if(tg)try{tg.sendData(JSON.stringify({action:'login',user_id:uid}));}catch(e){}document.getElementById('login').style.display='none';document.getElementById('dash').classList.add('show');sA(document.getElementById('dA'),photo,ini);document.getElementById('dN').textContent=full;document.getElementById('dI').textContent='ID: '+uid;};
