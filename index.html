@@ -8,116 +8,65 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0a0a14;color:#e0e0e0;min-height:100vh;min-height:100dvh;overflow-x:hidden}
-
-/* ===== LOADING SCREEN ===== */
 #load{position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a14;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
 #load.out{opacity:0;pointer-events:none;transition:opacity 0.6s}
-
-/* Animated grid */
 .grid-bg{position:absolute;top:0;left:0;width:100%;height:100%;background-image:linear-gradient(rgba(124,92,252,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(124,92,252,0.06) 1px,transparent 1px);background-size:40px 40px;animation:gridMove 4s linear infinite}
 @keyframes gridMove{0%{transform:translate(0,0)}100%{transform:translate(40px,40px)}}
-
-/* Scan line */
 .scan-line{position:absolute;top:0;left:0;width:100%;height:2px;background:linear-gradient(90deg,transparent,rgba(124,92,252,0.4),transparent);animation:scanDown 3s ease-in-out infinite}
 @keyframes scanDown{0%{top:-2px}50%{top:100%}100%{top:-2px}}
-
-/* Floating orbs */
 .orb{position:absolute;border-radius:50%;filter:blur(40px);opacity:0.3;animation:orbFloat 6s ease-in-out infinite}
 .orb1{width:120px;height:120px;background:#7c5cfc;top:20%;left:10%;animation-delay:0s}
 .orb2{width:80px;height:80px;background:#a78bfa;top:60%;right:15%;animation-delay:2s}
 .orb3{width:100px;height:100px;background:#5c3cdc;bottom:20%;left:50%;animation-delay:4s}
 @keyframes orbFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-30px) scale(1.1)}}
-
-/* Hexagon ring */
 .hex-wrap{position:relative;width:100px;height:100px;margin-bottom:24px;z-index:2}
 .hex-ring{position:absolute;top:0;left:0;width:100%;height:100%;animation:hexSpin 3s linear infinite}
 @keyframes hexSpin{to{transform:rotate(360deg)}}
 .hex-icon{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:36px;z-index:3}
-
-/* Corner brackets */
 .corner{position:absolute;width:20px;height:20px;z-index:2}
 .corner-tl{top:30px;left:30px;border-top:2px solid rgba(124,92,252,0.4);border-left:2px solid rgba(124,92,252,0.4)}
 .corner-tr{top:30px;right:30px;border-top:2px solid rgba(124,92,252,0.4);border-right:2px solid rgba(124,92,252,0.4)}
 .corner-bl{bottom:30px;left:30px;border-bottom:2px solid rgba(124,92,252,0.4);border-left:2px solid rgba(124,92,252,0.4)}
 .corner-br{bottom:30px;right:30px;border-bottom:2px solid rgba(124,92,252,0.4);border-right:2px solid rgba(124,92,252,0.4)}
-
-/* Progress bar */
 .bw{width:200px;height:3px;background:#151525;border-radius:2px;overflow:hidden;margin-bottom:10px;z-index:2}
 .bf{height:100%;width:0;background:linear-gradient(90deg,#5c3cdc,#7c5cfc,#a78bfa);border-radius:2px;box-shadow:0 0 10px rgba(124,92,252,0.5);transition:width 0.15s}
 #load .pct{color:#7c5cfc;font-size:11px;font-family:monospace;letter-spacing:2px;z-index:2}
 #load .status-msg{color:#555;font-size:11px;letter-spacing:2px;margin-bottom:20px;min-height:16px;z-index:2}
-
-/* ===== LOGIN SCREEN ===== */
 #login{display:none;position:fixed;top:0;left:0;right:0;bottom:0;flex-direction:column;align-items:center;justify-content:flex-end;padding:24px;z-index:1}
 #login.show{display:flex;animation:fu .6s ease}
 @keyframes fu{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
-
 .login-bg{position:absolute;top:0;left:0;width:100%;height:100%;z-index:0}
 .login-bg img{width:100%;height:100%;object-fit:cover}
 .login-overlay{position:absolute;bottom:0;left:0;width:100%;height:40%;background:linear-gradient(to top,rgba(0,0,0,0.5),transparent);z-index:1}
-
 .card{background:rgba(15,15,25,0.55);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.08);border-radius:24px;padding:32px 24px;text-align:center;width:100%;max-width:320px;z-index:2;margin-bottom:20px}
-
 .aw{position:relative;width:76px;height:76px;margin:0 auto 14px}
 .ar{position:absolute;top:-3px;left:-3px;width:82px;height:82px;border-radius:50%;border:2px solid transparent;border-top-color:#fff;border-right-color:rgba(255,255,255,0.5);animation:sp 2s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 .ai{width:76px;height:76px;border-radius:50%;background:linear-gradient(135deg,#7c5cfc,#5c3cdc);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff;overflow:hidden}
 .ai img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-
 .card h1{font-size:18px;color:#fff;letter-spacing:2px;margin-bottom:4px}
 .card .uid{font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:1px;margin-bottom:20px}
 .dv{width:36px;height:2px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);margin:0 auto 16px}
-
 .bl{width:100%;padding:13px;background:linear-gradient(135deg,rgba(255,255,255,0.15),rgba(255,255,255,0.05));color:#fff;border:1px solid rgba(255,255,255,0.15);border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:2px;position:relative;overflow:hidden}
 .bl em{position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);animation:sh 2.5s ease-in-out infinite;font-style:normal}
 @keyframes sh{0%{left:-100%}50%{left:100%}100%{left:100%}}
-
-/* ===== DASHBOARD ===== */
 #dash{display:none;position:fixed;top:0;left:0;right:0;bottom:0;flex-direction:column;z-index:1;overflow-y:auto}
 #dash.show{display:flex;animation:fu .6s ease}
-
 .dash-bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0}
 .dash-bg img{width:100%;height:100%;object-fit:cover}
 .dash-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(5,5,15,0.35);z-index:1}
-
 .dash-header{position:relative;z-index:2;padding:20px 16px 12px;text-align:center;background:rgba(10,10,20,0.5);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(124,92,252,0.15)}
 .dash-header h2{font-size:16px;color:#fff;letter-spacing:3px;margin-bottom:2px}
 .dash-header .dash-sub{font-size:10px;color:rgba(167,139,250,0.7);letter-spacing:2px}
-
 .dash-content{position:relative;z-index:2;padding:16px;flex:1}
-
-.se{font-size:10px;font-weight:700;color:rgba(167,139,250,0.8);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;padding-left:4px;text-shadow:0 0 10px rgba(124,92,252,0.3)}
-
+.se{font-size:11px;font-weight:600;color:#555;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;padding-left:4px}
 .gr{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
-
-.tc{background:rgba(12,12,25,0.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(124,92,252,0.2);border-radius:16px;padding:18px 10px;text-align:center;cursor:pointer;transition:all 0.3s ease;position:relative;overflow:hidden}
-.tc:active{transform:scale(0.95)}
-.tc::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;border-radius:16px;padding:1px;background:linear-gradient(135deg,rgba(124,92,252,0.3),transparent,rgba(167,139,250,0.2));-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
-.tc .tc-glow{position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(124,92,252,0.08) 0%,transparent 70%);opacity:0;transition:opacity 0.3s}
-.tc:active .tc-glow{opacity:1}
-.tc .tc-icon{font-size:28px;margin-bottom:8px;display:block;filter:drop-shadow(0 0 8px rgba(124,92,252,0.4))}
+.tc{background:linear-gradient(145deg,#111122,#0d0d1a);border:1px solid #1e1e3a;border-radius:16px;padding:16px 10px;text-align:center;cursor:pointer;transition:transform .2s}
+.tc:active{transform:scale(.95);border-color:#7c5cfc}
+.tc .tc-icon{font-size:28px;margin-bottom:8px;display:block}
 .tc .tc-name{font-size:12px;font-weight:700;color:#fff;letter-spacing:1px;margin-bottom:2px}
 .tc .tc-desc{font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:0.5px}
-
-/* Card entrance animation */
-.tc{opacity:0;transform:translateY(20px);animation:cardIn 0.4s ease forwards}
-.tc:nth-child(1){animation-delay:0.05s}
-.tc:nth-child(2){animation-delay:0.1s}
-.tc:nth-child(3){animation-delay:0.15s}
-.tc:nth-child(4){animation-delay:0.2s}
-@keyframes cardIn{to{opacity:1;transform:translateY(0)}}
-
-/* Neon pulse on cards */
-.tc{animation:cardIn 0.4s ease forwards,neonPulse 3s ease-in-out infinite}
-.tc:nth-child(1){animation-delay:0.05s,0s}
-.tc:nth-child(2){animation-delay:0.1s,0.5s}
-.tc:nth-child(3){animation-delay:0.15s,1s}
-.tc:nth-child(4){animation-delay:0.2s,1.5s}
-@keyframes neonPulse{0%,100%{box-shadow:0 0 5px rgba(124,92,252,0.1),0 4px 15px rgba(0,0,0,0.3)}50%{box-shadow:0 0 15px rgba(124,92,252,0.2),0 0 30px rgba(124,92,252,0.1),0 4px 15px rgba(0,0,0,0.3)}}
-
 .dash-footer{position:relative;z-index:2;text-align:center;padding:12px;font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:1px}
-
-/* ===== ERROR ===== */
 #err{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a14;z-index:9999;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
 #err.show{display:flex}
 #err .err-icon{font-size:48px;margin-bottom:16px}
@@ -126,15 +75,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </style>
 </head>
 <body>
-
-<!-- ERROR SCREEN -->
 <div id="err">
 <div class="err-icon">&#9888;</div>
 <div class="err-title">ERROR</div>
 <div class="err-msg" id="errMsg"></div>
 </div>
-
-<!-- LOADING SCREEN -->
 <div id="load">
 <div class="grid-bg"></div>
 <div class="scan-line"></div>
@@ -156,162 +101,129 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <div class="bw"><div class="bf" id="bar"></div></div>
 <div class="pct" id="pct">0%</div>
 </div>
-
-<!-- LOGIN SCREEN -->
 <div id="login">
-<div class="login-bg">
-<img src="logo.jpg" alt="bg">
-</div>
+<div class="login-bg"><img src="logo.jpg" alt="bg"></div>
 <div class="login-overlay"></div>
 <div class="card">
-<div class="aw">
-<div class="ar"></div>
-<div class="ai" id="avatar"></div>
-</div>
+<div class="aw"><div class="ar"></div><div class="ai" id="avatar"></div></div>
 <h1>J.HUYNH BOT</h1>
 <div class="uid" id="uid"></div>
 <div class="dv"></div>
 <button class="bl" id="loginBtn">LOGIN<em></em></button>
 </div>
 </div>
-
-<!-- DASHBOARD SCREEN -->
 <div id="dash">
-<div class="dash-bg">
-<img src="main.jpg" alt="bg">
-</div>
+<div class="dash-bg"><img src="main.jpg" alt="bg"></div>
 <div class="dash-overlay"></div>
 <div class="dash-header">
 <h2>J.HUYNH BOT</h2>
 <div class="dash-sub">CONTROL PANEL</div>
 </div>
 <div class="dash-content">
-<div class="se">&#9889; STRIPE TOOLS</div>
+<div class="se">STRIPE TOOLS</div>
 <div class="gr">
-<div class="tc" data-cmd="/co"><div class="tc-glow"></div><span class="tc-icon">&#128179;</span><div class="tc-name">STRIPE</div><div class="tc-desc">Charge checkout</div></div>
-<div class="tc" data-cmd="/bin"><div class="tc-glow"></div><span class="tc-icon">&#128196;</span><div class="tc-name">BIN CHK</div><div class="tc-desc">BIN lookup</div></div>
+<div class="tc" data-cmd="/co"><span class="tc-icon">&#128179;</span><div class="tc-name">Stripe Charge</div><div class="tc-desc">Charge checkout</div></div>
+<div class="tc" data-cmd="/bin"><span class="tc-icon">&#128196;</span><div class="tc-name">BIN Charge</div><div class="tc-desc">BIN lookup</div></div>
 </div>
-<div class="se">&#127760; ADYEN TOOLS</div>
+<div class="se">ADYEN TOOLS</div>
 <div class="gr">
-<div class="tc" data-cmd="/ay"><div class="tc-glow"></div><span class="tc-icon">&#128274;</span><div class="tc-name">ADYEN</div><div class="tc-desc">Adyen charge</div></div>
-<div class="tc" data-cmd="/aybin"><div class="tc-glow"></div><span class="tc-icon">&#128270;</span><div class="tc-name">AY BIN</div><div class="tc-desc">Adyen BIN</div></div>
+<div class="tc" data-cmd="/ay"><span class="tc-icon">&#128274;</span><div class="tc-name">Adyen Charge</div><div class="tc-desc">Adyen charge</div></div>
+<div class="tc" data-cmd="/aybin"><span class="tc-icon">&#128270;</span><div class="tc-name">Adyen BIN</div><div class="tc-desc">Adyen BIN</div></div>
 </div>
-<div class="se">&#128736; UTILITIES</div>
+<div class="se">UTILITIES</div>
 <div class="gr">
-<div class="tc" data-cmd="/proxy"><div class="tc-glow"></div><span class="tc-icon">&#127760;</span><div class="tc-name">PROXY</div><div class="tc-desc">Manage proxies</div></div>
-<div class="tc" data-cmd="/status"><div class="tc-glow"></div><span class="tc-icon">&#128200;</span><div class="tc-name">STATUS</div><div class="tc-desc">Bot status</div></div>
-<div class="tc" data-cmd="/gen"><div class="tc-glow"></div><span class="tc-icon">&#127922;</span><div class="tc-name">CARD GEN</div><div class="tc-desc">Generate cards</div></div>
-<div class="tc" data-cmd="/redeem"><div class="tc-glow"></div><span class="tc-icon">&#127873;</span><div class="tc-name">REDEEM</div><div class="tc-desc">Redeem code</div></div>
+<div class="tc" data-cmd="/proxy"><span class="tc-icon">&#127760;</span><div class="tc-name">Proxy</div><div class="tc-desc">Manage proxies</div></div>
+<div class="tc" data-cmd="/status"><span class="tc-icon">&#128200;</span><div class="tc-name">Status</div><div class="tc-desc">Bot status</div></div>
+<div class="tc" data-cmd="/gen"><span class="tc-icon">&#127922;</span><div class="tc-name">Card Gen</div><div class="tc-desc">Generate cards</div></div>
+<div class="tc" data-cmd="/redeem"><span class="tc-icon">&#127873;</span><div class="tc-name">Redeem</div><div class="tc-desc">Redeem code</div></div>
 </div>
 </div>
 <div class="dash-footer">J.HUYNH BOT v2.0 &#8226; SECURE CONNECTION</div>
 </div>
-
 <script>
 try {
 var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
 if (tg) { tg.expand(); tg.ready(); }
-
 var user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
-
-/* ===== LOADING ===== */
-var bar = document.getElementById('bar');
-var pct = document.getElementById('pct');
-var statusMsg = document.getElementById('statusMsg');
-var loadDiv = document.getElementById('load');
-var loginDiv = document.getElementById('login');
-var dashDiv = document.getElementById('dash');
-
-var msgs = ['CONNECTING', 'LOADING MODULES', 'VERIFYING ACCESS', 'DECRYPTING', 'ALMOST READY'];
+var bar = document.getElementById("bar");
+var pct = document.getElementById("pct");
+var statusMsg = document.getElementById("statusMsg");
+var loadDiv = document.getElementById("load");
+var loginDiv = document.getElementById("login");
+var dashDiv = document.getElementById("dash");
+var msgs = ["CONNECTING", "LOADING MODULES", "VERIFYING ACCESS", "DECRYPTING", "ALMOST READY"];
 var progress = 0;
 var msgIdx = 0;
-
 var loadTimer = setInterval(function() {
   progress += Math.floor(Math.random() * 8) + 2;
   if (progress > 100) progress = 100;
-  bar.style.width = progress + '%';
-  pct.textContent = progress + '%';
+  bar.style.width = progress + "%";
+  pct.textContent = progress + "%";
   if (progress > (msgIdx + 1) * 20 && msgIdx < msgs.length - 1) {
     msgIdx++;
     statusMsg.textContent = msgs[msgIdx];
   }
   if (progress >= 100) {
     clearInterval(loadTimer);
-    statusMsg.textContent = 'READY';
+    statusMsg.textContent = "READY";
     setTimeout(function() {
-      loadDiv.className = 'out';
+      loadDiv.className = "out";
       setTimeout(function() {
-        loadDiv.style.display = 'none';
+        loadDiv.style.display = "none";
         showLogin();
       }, 600);
     }, 400);
   }
 }, 120);
-
-/* ===== LOGIN ===== */
 function showLogin() {
-  var avatarEl = document.getElementById('avatar');
-  var uidEl = document.getElementById('uid');
-
+  var avatarEl = document.getElementById("avatar");
+  var uidEl = document.getElementById("uid");
   if (user && user.photo_url) {
-    avatarEl.innerHTML = '<img src="' + user.photo_url + '" alt="av">';
+    avatarEl.innerHTML = "<img src=\"" + user.photo_url + "\" alt=\"av\">";
   } else if (user && user.first_name) {
     avatarEl.textContent = user.first_name.charAt(0).toUpperCase();
   } else {
-    avatarEl.textContent = '?';
+    avatarEl.textContent = "?";
   }
-
   if (user) {
-    uidEl.textContent = 'ID: ' + user.id;
+    uidEl.textContent = "ID: " + user.id;
   } else {
-    uidEl.textContent = 'ID: UNKNOWN';
+    uidEl.textContent = "ID: UNKNOWN";
   }
-
-  loginDiv.className = 'show';
+  loginDiv.className = "show";
 }
-
-/* ===== LOGIN BUTTON ===== */
-var loginBtn = document.getElementById('loginBtn');
-loginBtn.addEventListener('click', function() {
+var loginBtn = document.getElementById("loginBtn");
+loginBtn.addEventListener("click", function() {
   if (tg) {
-    try {
-      tg.sendData(JSON.stringify({action:'login',user_id:user?user.id:0}));
-    } catch(e) {}
+    try { tg.sendData(JSON.stringify({action:"login",user_id:user?user.id:0})); } catch(e) {}
   }
-  loginDiv.style.opacity = '0';
-  loginDiv.style.transition = 'opacity 0.4s';
+  loginDiv.style.opacity = "0";
+  loginDiv.style.transition = "opacity 0.4s";
   setTimeout(function() {
-    loginDiv.style.display = 'none';
+    loginDiv.style.display = "none";
     showDash();
   }, 400);
 });
-
-/* ===== DASHBOARD ===== */
 function showDash() {
-  dashDiv.className = 'show';
+  dashDiv.className = "show";
 }
-
-/* Tool card clicks */
-var cards = document.querySelectorAll('.tc[data-cmd]');
+var cards = document.querySelectorAll(".tc[data-cmd]");
 for (var i = 0; i < cards.length; i++) {
   (function(card) {
-    card.addEventListener('click', function() {
-      var cmd = card.getAttribute('data-cmd');
+    card.addEventListener("click", function() {
+      var cmd = card.getAttribute("data-cmd");
       if (tg) {
-        try {
-          tg.sendData(JSON.stringify({action:'command',command:cmd,user_id:user?user.id:0}));
-        } catch(e) {}
+        try { tg.sendData(JSON.stringify({action:"command",command:cmd,user_id:user?user.id:0})); } catch(e) {}
       }
     });
   })(cards[i]);
 }
-
 } catch(e) {
-  var errDiv = document.getElementById('err');
-  var errMsg = document.getElementById('errMsg');
+  var errDiv = document.getElementById("err");
+  var errMsg = document.getElementById("errMsg");
   if (errDiv && errMsg) {
-    errMsg.textContent = e.message || 'Unknown error';
-    errDiv.className = 'show';
+    errMsg.textContent = e.message || "Unknown error";
+    errDiv.className = "show";
   }
 }
 </script>
