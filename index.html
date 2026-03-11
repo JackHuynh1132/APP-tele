@@ -41,39 +41,37 @@ canvas#bg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none
 .load-pct{color:#7c5cfc;font-size:11px;font-family:monospace;letter-spacing:2px}
 
 /* === LOGIN === */
-#login{display:none;position:relative;z-index:1;min-height:100vh;min-height:100dvh}
+#login{display:none;position:relative;z-index:1;min-height:100vh;min-height:100dvh;overflow:hidden}
 #login.show{display:block;animation:fu .6s ease}
-@keyframes fu{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fu{from{opacity:0}to{opacity:1}}
 
-/* Background image layer */
-.login-bg{position:absolute;top:0;left:0;right:0;bottom:0;background:url('logo.jpg') center center/cover no-repeat;opacity:.12;z-index:0}
-.login-bg-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at center,rgba(10,10,20,.3) 0%,rgba(10,10,20,.95) 70%);z-index:1}
+/* Full visible background image */
+.login-bg{position:absolute;top:0;left:0;right:0;bottom:0;background:url('logo.jpg') center center/cover no-repeat;z-index:0}
+/* Light vignette only at edges so image stays clear */
+.login-bg-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(10,10,20,.2) 0%,rgba(10,10,20,.1) 30%,rgba(10,10,20,.15) 60%,rgba(10,10,20,.6) 100%);z-index:1}
 
-/* Login content */
-.login-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;min-height:100dvh;padding:24px 20px}
+.login-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:100vh;min-height:100dvh;padding:0 20px 32px}
 
-.card{background:rgba(14,14,28,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(124,92,252,.15);border-radius:24px;padding:36px 28px 32px;text-align:center;width:100%;max-width:340px;box-shadow:0 20px 60px rgba(0,0,0,.4),0 0 40px rgba(124,92,252,.05)}
+/* Card sits at bottom, transparent bg so image shows through */
+.card{background:rgba(10,10,20,.55);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:28px 24px 24px;text-align:center;width:100%;max-width:360px;position:relative}
+.card::before{content:'';position:absolute;top:-1px;left:15%;right:15%;height:2px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);border-radius:2px}
 
-/* Glow line top of card */
-.card::before{content:'';position:absolute;top:-1px;left:20%;right:20%;height:2px;background:linear-gradient(90deg,transparent,rgba(124,92,252,.5),transparent);border-radius:2px}
-.card{position:relative}
+.card h1{font-size:20px;color:#fff;letter-spacing:3px;margin-bottom:3px;font-weight:700;text-shadow:0 2px 10px rgba(0,0,0,.5)}
+.card .sub2{font-size:10px;color:rgba(255,255,255,.45);letter-spacing:1.5px;margin-bottom:22px}
+.dv{width:40px;height:2px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);margin:0 auto 20px}
 
-.card h1{font-size:20px;color:#fff;letter-spacing:3px;margin-bottom:4px;font-weight:700}
-.card .sub2{font-size:10px;color:#555;letter-spacing:1.5px;margin-bottom:28px}
-.dv{width:40px;height:2px;background:linear-gradient(90deg,transparent,#7c5cfc,transparent);margin:0 auto 24px}
-
-.aw{position:relative;width:80px;height:80px;margin:0 auto 16px}
-.ar{position:absolute;top:-4px;left:-4px;width:88px;height:88px;border-radius:50%;border:2px solid transparent;border-top-color:#7c5cfc;border-right-color:#a78bfa;animation:sp 2s linear infinite}
+.aw{position:relative;width:76px;height:76px;margin:0 auto 14px}
+.ar{position:absolute;top:-4px;left:-4px;width:84px;height:84px;border-radius:50%;border:2px solid transparent;border-top-color:rgba(255,255,255,.5);border-right-color:rgba(255,255,255,.2);animation:sp 2s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
-.ai{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#7c5cfc,#5c3cdc);display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;color:#fff;overflow:hidden;box-shadow:0 4px 20px rgba(124,92,252,.3)}
+.ai{width:76px;height:76px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff;overflow:hidden;border:2px solid rgba(255,255,255,.15);box-shadow:0 4px 20px rgba(0,0,0,.3)}
 .ai img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 
-.un{font-size:17px;font-weight:600;color:#fff;margin-bottom:6px}
-.ui{display:inline-block;font-size:11px;color:#7c5cfc;font-family:monospace;background:rgba(124,92,252,.08);padding:4px 16px;border-radius:20px;border:1px solid rgba(124,92,252,.2);margin-bottom:28px}
+.un{font-size:16px;font-weight:600;color:#fff;margin-bottom:5px;text-shadow:0 1px 6px rgba(0,0,0,.4)}
+.ui{display:inline-block;font-size:11px;color:rgba(255,255,255,.6);font-family:monospace;background:rgba(255,255,255,.06);padding:4px 16px;border-radius:20px;border:1px solid rgba(255,255,255,.1);margin-bottom:24px}
 
-.bl{width:100%;padding:14px;background:linear-gradient(135deg,#7c5cfc,#5c3cdc);color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:2px;box-shadow:0 6px 24px rgba(124,92,252,.35);position:relative;overflow:hidden;transition:transform .15s,box-shadow .15s}
-.bl:active{transform:scale(.97);box-shadow:0 3px 12px rgba(124,92,252,.3)}
-.bl em{position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);animation:sh 2.5s ease-in-out infinite;font-style:normal}
+.bl{width:100%;padding:14px;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.15);border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:2px;position:relative;overflow:hidden;transition:transform .15s;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.bl:active{transform:scale(.97);background:rgba(255,255,255,.18)}
+.bl em{position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent);animation:sh 2.5s ease-in-out infinite;font-style:normal}
 @keyframes sh{0%{left:-100%}50%{left:100%}100%{left:100%}}
 
 /* === DASHBOARD === */
