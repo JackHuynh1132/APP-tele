@@ -15,7 +15,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .scan-line{position:absolute;top:0;left:0;width:100%;height:2px;background:linear-gradient(90deg,transparent,rgba(124,92,252,0.4),transparent);animation:scanDown 3s ease-in-out infinite}
 @keyframes scanDown{0%{top:-2px}50%{top:100%}100%{top:-2px}}
 .orb{position:absolute;border-radius:50%;filter:blur(40px);opacity:0.3;animation:orbFloat 6s ease-in-out infinite}
-.orb1{width:120px;height:120px;background:#7c5cfc;top:20%;left:10%;animation-delay:0s}
+.orb1{width:120px;height:120px;background:#7c5cfc;top:20%;left:10%}
 .orb2{width:80px;height:80px;background:#a78bfa;top:60%;right:15%;animation-delay:2s}
 .orb3{width:100px;height:100px;background:#5c3cdc;bottom:20%;left:50%;animation-delay:4s}
 @keyframes orbFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-30px) scale(1.1)}}
@@ -52,20 +52,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 @keyframes sh{0%{left:-100%}50%{left:100%}100%{left:100%}}
 #dash{display:none;position:fixed;top:0;left:0;right:0;bottom:0;flex-direction:column;z-index:1;overflow-y:auto}
 #dash.show{display:flex;animation:fu .6s ease}
-.dash-bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0}
-.dash-bg img{width:100%;height:100%;object-fit:cover}
-.dash-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(5,5,15,0.35);z-index:1}
+.dash-bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;overflow:hidden}
+.dash-bg img{width:120%;height:120%;object-fit:cover;position:absolute;top:-10%;left:-10%;animation:bgDrift 20s ease-in-out infinite}
+@keyframes bgDrift{0%{transform:translate(0,0) scale(1)}25%{transform:translate(2%,-2%) scale(1.03)}50%{transform:translate(-1%,2%) scale(1.05)}75%{transform:translate(-2%,-1%) scale(1.02)}100%{transform:translate(0,0) scale(1)}}
+.dash-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(5,5,15,0.4);z-index:1}
 .dash-header{position:relative;z-index:2;padding:20px 16px 12px;text-align:center;background:rgba(10,10,20,0.5);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(124,92,252,0.15)}
 .dash-header h2{font-size:16px;color:#fff;letter-spacing:3px;margin-bottom:2px}
 .dash-header .dash-sub{font-size:10px;color:rgba(167,139,250,0.7);letter-spacing:2px}
 .dash-content{position:relative;z-index:2;padding:16px;flex:1}
-.se{font-size:11px;font-weight:600;color:#555;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;padding-left:4px}
+.se{font-size:10px;font-weight:700;color:rgba(167,139,250,0.8);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;padding-left:4px;text-shadow:0 0 10px rgba(124,92,252,0.3)}
 .gr{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
-.tc{background:linear-gradient(145deg,#111122,#0d0d1a);border:1px solid #1e1e3a;border-radius:16px;padding:16px 10px;text-align:center;cursor:pointer;transition:transform .2s}
-.tc:active{transform:scale(.95);border-color:#7c5cfc}
-.tc .tc-icon{font-size:28px;margin-bottom:8px;display:block}
+.tc{background:rgba(12,12,25,0.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(124,92,252,0.2);border-radius:16px;padding:18px 10px;text-align:center;cursor:pointer;transition:all 0.3s ease;position:relative;overflow:hidden;opacity:0;transform:translateY(20px);animation:cardIn 0.5s ease forwards}
+.tc:nth-child(1){animation-delay:0.05s}
+.tc:nth-child(2){animation-delay:0.12s}
+.tc:nth-child(3){animation-delay:0.19s}
+.tc:nth-child(4){animation-delay:0.26s}
+@keyframes cardIn{to{opacity:0.85;transform:translateY(0)}}
+.tc:active{transform:scale(0.95);opacity:1;border-color:rgba(124,92,252,0.6);box-shadow:0 0 20px rgba(124,92,252,0.3)}
+.tc .tc-icon{font-size:28px;margin-bottom:8px;display:block;filter:drop-shadow(0 0 6px rgba(124,92,252,0.4))}
 .tc .tc-name{font-size:12px;font-weight:700;color:#fff;letter-spacing:1px;margin-bottom:2px}
-.tc .tc-desc{font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:0.5px}
+.tc .tc-desc{font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:0.5px}
+.tc::after{content:"";position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(124,92,252,0.06) 0%,transparent 60%);animation:neonPulse 4s ease-in-out infinite;pointer-events:none}
+@keyframes neonPulse{0%,100%{opacity:0.3;transform:scale(0.8)}50%{opacity:1;transform:scale(1)}}
 .dash-footer{position:relative;z-index:2;text-align:center;padding:12px;font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:1px}
 #err{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a14;z-index:9999;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
 #err.show{display:flex}
@@ -75,21 +83,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </style>
 </head>
 <body>
-<div id="err">
-<div class="err-icon">&#9888;</div>
-<div class="err-title">ERROR</div>
-<div class="err-msg" id="errMsg"></div>
-</div>
+<div id="err"><div class="err-icon">&#9888;</div><div class="err-title">ERROR</div><div class="err-msg" id="errMsg"></div></div>
 <div id="load">
-<div class="grid-bg"></div>
-<div class="scan-line"></div>
-<div class="orb orb1"></div>
-<div class="orb orb2"></div>
-<div class="orb orb3"></div>
-<div class="corner corner-tl"></div>
-<div class="corner corner-tr"></div>
-<div class="corner corner-bl"></div>
-<div class="corner corner-br"></div>
+<div class="grid-bg"></div><div class="scan-line"></div>
+<div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
+<div class="corner corner-tl"></div><div class="corner corner-tr"></div><div class="corner corner-bl"></div><div class="corner corner-br"></div>
 <div class="hex-wrap">
 <svg class="hex-ring" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
 <polygon points="50,2 93,25 93,75 50,98 7,75 7,25" stroke="rgba(124,92,252,0.4)" stroke-width="1.5" fill="none"/>
@@ -106,31 +104,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <div class="login-overlay"></div>
 <div class="card">
 <div class="aw"><div class="ar"></div><div class="ai" id="avatar"></div></div>
-<h1>J.HUYNH BOT</h1>
-<div class="uid" id="uid"></div>
-<div class="dv"></div>
+<h1>J.HUYNH BOT</h1><div class="uid" id="uid"></div><div class="dv"></div>
 <button class="bl" id="loginBtn">LOGIN<em></em></button>
 </div>
 </div>
 <div id="dash">
 <div class="dash-bg"><img src="main.jpg" alt="bg"></div>
 <div class="dash-overlay"></div>
-<div class="dash-header">
-<h2>J.HUYNH BOT</h2>
-<div class="dash-sub">CONTROL PANEL</div>
-</div>
+<div class="dash-header"><h2>J.HUYNH BOT</h2><div class="dash-sub">CONTROL PANEL</div></div>
 <div class="dash-content">
-<div class="se">STRIPE TOOLS</div>
+<div class="se">&#9889; STRIPE TOOLS</div>
 <div class="gr">
 <div class="tc" data-cmd="/co"><span class="tc-icon">&#128179;</span><div class="tc-name">Stripe Charge</div><div class="tc-desc">Charge checkout</div></div>
 <div class="tc" data-cmd="/bin"><span class="tc-icon">&#128196;</span><div class="tc-name">BIN Charge</div><div class="tc-desc">BIN lookup</div></div>
 </div>
-<div class="se">ADYEN TOOLS</div>
+<div class="se">&#127760; ADYEN TOOLS</div>
 <div class="gr">
 <div class="tc" data-cmd="/ay"><span class="tc-icon">&#128274;</span><div class="tc-name">Adyen Charge</div><div class="tc-desc">Adyen charge</div></div>
 <div class="tc" data-cmd="/aybin"><span class="tc-icon">&#128270;</span><div class="tc-name">Adyen BIN</div><div class="tc-desc">Adyen BIN</div></div>
 </div>
-<div class="se">UTILITIES</div>
+<div class="se">&#128736; UTILITIES</div>
 <div class="gr">
 <div class="tc" data-cmd="/proxy"><span class="tc-icon">&#127760;</span><div class="tc-name">Proxy</div><div class="tc-desc">Manage proxies</div></div>
 <div class="tc" data-cmd="/status"><span class="tc-icon">&#128200;</span><div class="tc-name">Status</div><div class="tc-desc">Bot status</div></div>
@@ -141,90 +134,53 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <div class="dash-footer">J.HUYNH BOT v2.0 &#8226; SECURE CONNECTION</div>
 </div>
 <script>
-try {
-var tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-if (tg) { tg.expand(); tg.ready(); }
-var user = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
-var bar = document.getElementById("bar");
-var pct = document.getElementById("pct");
-var statusMsg = document.getElementById("statusMsg");
-var loadDiv = document.getElementById("load");
-var loginDiv = document.getElementById("login");
-var dashDiv = document.getElementById("dash");
-var msgs = ["CONNECTING", "LOADING MODULES", "VERIFYING ACCESS", "DECRYPTING", "ALMOST READY"];
-var progress = 0;
-var msgIdx = 0;
-var loadTimer = setInterval(function() {
-  progress += Math.floor(Math.random() * 8) + 2;
-  if (progress > 100) progress = 100;
-  bar.style.width = progress + "%";
-  pct.textContent = progress + "%";
-  if (progress > (msgIdx + 1) * 20 && msgIdx < msgs.length - 1) {
-    msgIdx++;
-    statusMsg.textContent = msgs[msgIdx];
-  }
-  if (progress >= 100) {
-    clearInterval(loadTimer);
-    statusMsg.textContent = "READY";
-    setTimeout(function() {
-      loadDiv.className = "out";
-      setTimeout(function() {
-        loadDiv.style.display = "none";
-        showLogin();
-      }, 600);
-    }, 400);
-  }
-}, 120);
-function showLogin() {
-  var avatarEl = document.getElementById("avatar");
-  var uidEl = document.getElementById("uid");
-  if (user && user.photo_url) {
-    avatarEl.innerHTML = "<img src=\"" + user.photo_url + "\" alt=\"av\">";
-  } else if (user && user.first_name) {
-    avatarEl.textContent = user.first_name.charAt(0).toUpperCase();
-  } else {
-    avatarEl.textContent = "?";
-  }
-  if (user) {
-    uidEl.textContent = "ID: " + user.id;
-  } else {
-    uidEl.textContent = "ID: UNKNOWN";
-  }
-  loginDiv.className = "show";
+try{
+var tg=window.Telegram&&window.Telegram.WebApp?window.Telegram.WebApp:null;
+if(tg){tg.expand();tg.ready();}
+var user=tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user?tg.initDataUnsafe.user:null;
+var bar=document.getElementById("bar");
+var pct=document.getElementById("pct");
+var statusMsg=document.getElementById("statusMsg");
+var loadDiv=document.getElementById("load");
+var loginDiv=document.getElementById("login");
+var dashDiv=document.getElementById("dash");
+var msgs=["CONNECTING","LOADING MODULES","VERIFYING ACCESS","DECRYPTING","ALMOST READY"];
+var progress=0;var msgIdx=0;
+var loadTimer=setInterval(function(){
+progress+=Math.floor(Math.random()*8)+2;
+if(progress>100)progress=100;
+bar.style.width=progress+"%";
+pct.textContent=progress+"%";
+if(progress>(msgIdx+1)*20&&msgIdx<msgs.length-1){msgIdx++;statusMsg.textContent=msgs[msgIdx];}
+if(progress>=100){clearInterval(loadTimer);statusMsg.textContent="READY";
+setTimeout(function(){loadDiv.className="out";setTimeout(function(){loadDiv.style.display="none";showLogin();},600);},400);}
+},120);
+function showLogin(){
+var avatarEl=document.getElementById("avatar");
+var uidEl=document.getElementById("uid");
+if(user&&user.photo_url){avatarEl.innerHTML="<img src=\""+user.photo_url+"\" alt=\"av\">";}
+else if(user&&user.first_name){avatarEl.textContent=user.first_name.charAt(0).toUpperCase();}
+else{avatarEl.textContent="?";}
+if(user){uidEl.textContent="ID: "+user.id;}else{uidEl.textContent="ID: UNKNOWN";}
+loginDiv.className="show";
 }
-var loginBtn = document.getElementById("loginBtn");
-loginBtn.addEventListener("click", function() {
-  if (tg) {
-    try { tg.sendData(JSON.stringify({action:"login",user_id:user?user.id:0})); } catch(e) {}
-  }
-  loginDiv.style.opacity = "0";
-  loginDiv.style.transition = "opacity 0.4s";
-  setTimeout(function() {
-    loginDiv.style.display = "none";
-    showDash();
-  }, 400);
+var loginBtn=document.getElementById("loginBtn");
+loginBtn.addEventListener("click",function(){
+if(tg){try{tg.sendData(JSON.stringify({action:"login",user_id:user?user.id:0}));}catch(e){}}
+loginDiv.style.opacity="0";loginDiv.style.transition="opacity 0.4s";
+setTimeout(function(){loginDiv.style.display="none";showDash();},400);
 });
-function showDash() {
-  dashDiv.className = "show";
+function showDash(){dashDiv.className="show";}
+var cards=document.querySelectorAll(".tc[data-cmd]");
+for(var i=0;i<cards.length;i++){
+(function(card){card.addEventListener("click",function(){
+var cmd=card.getAttribute("data-cmd");
+if(tg){try{tg.sendData(JSON.stringify({action:"command",command:cmd,user_id:user?user.id:0}));}catch(e){}}
+});})(cards[i]);
 }
-var cards = document.querySelectorAll(".tc[data-cmd]");
-for (var i = 0; i < cards.length; i++) {
-  (function(card) {
-    card.addEventListener("click", function() {
-      var cmd = card.getAttribute("data-cmd");
-      if (tg) {
-        try { tg.sendData(JSON.stringify({action:"command",command:cmd,user_id:user?user.id:0})); } catch(e) {}
-      }
-    });
-  })(cards[i]);
-}
-} catch(e) {
-  var errDiv = document.getElementById("err");
-  var errMsg = document.getElementById("errMsg");
-  if (errDiv && errMsg) {
-    errMsg.textContent = e.message || "Unknown error";
-    errDiv.className = "show";
-  }
+}catch(e){
+var errDiv=document.getElementById("err");var errMsg=document.getElementById("errMsg");
+if(errDiv&&errMsg){errMsg.textContent=e.message||"Unknown error";errDiv.className="show";}
 }
 </script>
 </body>
