@@ -166,7 +166,6 @@ loginDiv.className="show";
 }
 var loginBtn=document.getElementById("loginBtn");
 loginBtn.addEventListener("click",function(){
-if(tg){try{tg.sendData(JSON.stringify({action:"login",user_id:user?user.id:0}));}catch(e){}}
 loginDiv.style.opacity="0";loginDiv.style.transition="opacity 0.4s";
 setTimeout(function(){loginDiv.style.display="none";showDash();},400);
 });
