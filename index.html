@@ -75,7 +75,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .tc::after{content:"";position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(124,92,252,0.06) 0%,transparent 60%);animation:neonPulse 4s ease-in-out infinite;pointer-events:none}
 @keyframes neonPulse{0%,100%{opacity:0.3;transform:scale(0.8)}50%{opacity:1;transform:scale(1)}}
 .dash-footer{position:relative;z-index:2;text-align:center;padding:12px;font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:1px}
-.api-input{width:100%;background:rgba(8,8,18,0.85);border:1px solid rgba(124,92,252,0.3);border-radius:10px;color:#fff;padding:8px 10px;font-size:11px;margin-bottom:8px}
 .result-box{margin-top:10px;background:rgba(8,8,18,0.85);border:1px solid rgba(124,92,252,0.25);border-radius:10px;padding:10px;max-height:220px;overflow:auto}
 .result-box pre{white-space:pre-wrap;word-break:break-word;font-size:11px;color:#d8d8e6;line-height:1.45}
 .modal{display:none;position:fixed;z-index:9998;inset:0;background:rgba(0,0,0,0.6);align-items:flex-end}
@@ -140,7 +139,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <div class="tc" data-cmd="/gen"><span class="tc-icon">&#127922;</span><div class="tc-name">Card Gen</div><div class="tc-desc">Generate cards</div></div>
 <div class="tc" data-cmd="/redeem"><span class="tc-icon">&#127873;</span><div class="tc-name">Redeem</div><div class="tc-desc">Redeem code</div></div>
 </div>
-<input id="apiBaseInput" class="api-input" placeholder="API Base URL (https://your-vps-domain-or-ip)" />
 <div id="resultBox" class="result-box"><pre id="resultText">No result yet.</pre></div>
 </div>
 <div class="dash-footer">J.HUYNH BOT v2.0 &#8226; SECURE CONNECTION</div>
@@ -189,20 +187,12 @@ loginDiv.style.opacity="0";loginDiv.style.transition="opacity 0.4s";
 setTimeout(function(){loginDiv.style.display="none";showDash();},400);
 });
 function showDash(){dashDiv.className="show";}
-var apiBaseInput=document.getElementById("apiBaseInput");
 var resultText=document.getElementById("resultText");
 var featureModal=document.getElementById("featureModal");
 var modalTitle=document.getElementById("modalTitle");
 var modalBody=document.getElementById("modalBody");
 var modalCloseBtn=document.getElementById("modalCloseBtn");
-var WEBAPP_API_BASE=(localStorage.getItem("webapp_api_base")||window.WEBAPP_API_BASE||"").replace(/\/$/,"");
-if(apiBaseInput){apiBaseInput.value=WEBAPP_API_BASE;}
-if(apiBaseInput){
-apiBaseInput.addEventListener("change",function(){
-WEBAPP_API_BASE=(apiBaseInput.value||"").trim().replace(/\/$/,"");
-localStorage.setItem("webapp_api_base",WEBAPP_API_BASE);
-});
-}
+var WEBAPP_API_BASE=(window.WEBAPP_API_BASE||"https://mort-royal-production.up.railway.app").replace(/\/$/,"");
 
 function setResult(text){
 if(resultText){resultText.textContent=text||"";}
