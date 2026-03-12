@@ -217,12 +217,19 @@ out.push(cc+"|"+mm+"|"+yy+"|"+cvv);
 return out.join("\n");
 }
 async function runApi(payload){
-if(!tg||!tg.initData){setResult("Telegram auth data missing.");return;}
+var initData = (tg && tg.initData) ? tg.initData : "";
+if(!initData){
+try{
+var qs = new URLSearchParams(window.location.search);
+initData = decodeURIComponent(qs.get("tgWebAppData") || "");
+}catch(e){}
+}
+if(!initData){setResult("Telegram auth data missing. Open app from Telegram /app button.");return;}
 if(!WEBAPP_API_BASE){setResult("Set API Base URL first.");return;}
 setResult("Processing request...");
 try{
 var r=await fetch(WEBAPP_API_BASE+"/webapp/run",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
-command:payload.command,text:payload.text,user_id:user?user.id:0,user_name:user?(user.first_name||"WebAppUser"):"WebAppUser",chat_id:user?user.id:0,init_data:tg.initData
+command:payload.command,text:payload.text,user_id:user?user.id:0,user_name:user?(user.first_name||"WebAppUser"):"WebAppUser",chat_id:user?user.id:0,init_data:initData
 })});
 var data=await r.json();
 if(!data||!data.ok){setResult("Error: "+((data&&data.error)||"run failed"));return;}
