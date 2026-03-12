@@ -80,6 +80,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .cmd-input{width:100%;background:rgba(8,8,18,0.85);border:1px solid rgba(124,92,252,0.3);border-radius:10px;color:#fff;padding:10px;font-size:12px;min-height:70px;resize:vertical}
 .run-btn{width:100%;margin-top:8px;padding:10px;border:0;border-radius:10px;color:#fff;font-weight:700;letter-spacing:1px;background:linear-gradient(135deg,#5c3cdc,#7c5cfc)}
 .builder-status{font-size:10px;color:rgba(167,139,250,0.9);margin-top:8px;min-height:14px}
+.result-box{margin-top:10px;background:rgba(8,8,18,0.85);border:1px solid rgba(124,92,252,0.25);border-radius:10px;padding:10px;max-height:220px;overflow:auto}
+.result-box pre{white-space:pre-wrap;word-break:break-word;font-size:11px;color:#d8d8e6;line-height:1.45}
 #err{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a14;z-index:9999;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
 #err.show{display:flex}
 #err .err-icon{font-size:48px;margin-bottom:16px}
@@ -139,8 +141,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <div class="builder">
 <div class="hint">Tap a tool to prepare command, edit if needed, then Run.</div>
 <textarea id="commandInput" class="cmd-input" placeholder="/co https://checkout.stripe.com/... 474472"></textarea>
-<button id="runCommandBtn" class="run-btn">RUN IN BOT</button>
+<button id="runCommandBtn" class="run-btn">RUN NOW</button>
 <div id="builderStatus" class="builder-status"></div>
+<div id="resultBox" class="result-box"><pre id="resultText">No result yet.</pre></div>
 </div>
 </div>
 <div class="dash-footer">J.HUYNH BOT v2.0 &#8226; SECURE CONNECTION</div>
@@ -185,6 +188,27 @@ function showDash(){dashDiv.className="show";}
 var cmdInput=document.getElementById("commandInput");
 var runCommandBtn=document.getElementById("runCommandBtn");
 var builderStatus=document.getElementById("builderStatus");
+var resultText=document.getElementById("resultText");
+var WEBAPP_API_BASE=(window.WEBAPP_API_BASE||"https://mort-royal-production.up.railway.app").replace(/\/$/,"");
+
+function setResult(text){
+if(resultText){resultText.textContent=text||"";}
+}
+
+function parseCommandInput(text){
+var t=(text||"").trim();
+if(!t){return null;}
+var parts=t.split(/\s+/);
+var command=(parts[0]||"").replace(/^\//,"").toLowerCase();
+if(!command){return null;}
+if(command==="co"||command==="co2"){
+return {command:"co",text:t};
+}
+if(command==="url"||command==="url2"){
+return {command:"url",text:t};
+}
+return {command:command,text:t};
+}
 var cards=document.querySelectorAll(".tc[data-cmd]");
 for(var i=0;i<cards.length;i++){
 (function(card){card.addEventListener("click",function(){
@@ -196,14 +220,42 @@ if(builderStatus){builderStatus.textContent="Selected "+cmd+". Fill params and p
 if(runCommandBtn){
 runCommandBtn.addEventListener("click",function(){
 var text=cmdInput&&cmdInput.value?cmdInput.value.trim():"";
-if(!text){if(builderStatus){builderStatus.textContent="Please enter a command first.";}return;}
-if(!tg){if(builderStatus){builderStatus.textContent="Telegram WebApp not available.";}return;}
-try{
-tg.sendData(JSON.stringify({action:"run_command",command_text:text,user_id:user?user.id:0}));
-if(builderStatus){builderStatus.textContent="Command sent. Check bot response in chat.";}
-}catch(e){
-if(builderStatus){builderStatus.textContent="Send failed: "+(e&&e.message?e.message:"unknown");}
+var parsed=parseCommandInput(text);
+if(!parsed){if(builderStatus){builderStatus.textContent="Please enter a valid command first.";}return;}
+if(parsed.command!=="co"&&parsed.command!=="url"){
+if(builderStatus){builderStatus.textContent="WebApp direct run supports /co and /url only.";}
+return;
 }
+if(!tg||!tg.initData){if(builderStatus){builderStatus.textContent="Telegram auth data missing.";}return;}
+if(builderStatus){builderStatus.textContent="Running...";}
+setResult("Processing request...");
+fetch(WEBAPP_API_BASE+"/webapp/run",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+command:parsed.command,
+text:parsed.text,
+user_id:user?user.id:0,
+user_name:user?(user.first_name||"WebAppUser"):"WebAppUser",
+chat_id:user?user.id:0,
+init_data:tg.initData
+})
+}).then(function(r){return r.json();}).then(function(data){
+if(!data||!data.ok){
+var er=(data&&data.error)?data.error:"run failed";
+if(builderStatus){builderStatus.textContent="Failed: "+er;}
+setResult("Error: "+er);
+return;
+}
+if(builderStatus){builderStatus.textContent="Done.";}
+var msgs=(data.messages||[]);
+var out=msgs.length?msgs.join("\n\n"):"No messages returned.";
+if(data.worker_ip){out+="\n\nWorker IP: "+data.worker_ip;}
+setResult(out);
+}).catch(function(e){
+if(builderStatus){builderStatus.textContent="Network/API error.";}
+setResult("Network/API error: "+(e&&e.message?e.message:"unknown"));
+});
 });
 }
 }catch(e){
