@@ -224,7 +224,6 @@ var qs = new URLSearchParams(window.location.search);
 initData = decodeURIComponent(qs.get("tgWebAppData") || "");
 }catch(e){}
 }
-if(!initData){setResult("Telegram auth data missing. Open app from Telegram /app button.");return;}
 if(!WEBAPP_API_BASE){setResult("Set API Base URL first.");return;}
 setResult("Processing request...");
 try{
