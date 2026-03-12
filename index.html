@@ -75,6 +75,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .tc::after{content:"";position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(124,92,252,0.06) 0%,transparent 60%);animation:neonPulse 4s ease-in-out infinite;pointer-events:none}
 @keyframes neonPulse{0%,100%{opacity:0.3;transform:scale(0.8)}50%{opacity:1;transform:scale(1)}}
 .dash-footer{position:relative;z-index:2;text-align:center;padding:12px;font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:1px}
+.builder{background:rgba(12,12,25,0.6);border:1px solid rgba(124,92,252,0.25);border-radius:14px;padding:12px;margin-top:6px}
+.builder .hint{font-size:10px;color:rgba(255,255,255,0.5);margin-bottom:8px}
+.cmd-input{width:100%;background:rgba(8,8,18,0.85);border:1px solid rgba(124,92,252,0.3);border-radius:10px;color:#fff;padding:10px;font-size:12px;min-height:70px;resize:vertical}
+.run-btn{width:100%;margin-top:8px;padding:10px;border:0;border-radius:10px;color:#fff;font-weight:700;letter-spacing:1px;background:linear-gradient(135deg,#5c3cdc,#7c5cfc)}
+.builder-status{font-size:10px;color:rgba(167,139,250,0.9);margin-top:8px;min-height:14px}
 #err{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a14;z-index:9999;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
 #err.show{display:flex}
 #err .err-icon{font-size:48px;margin-bottom:16px}
@@ -130,6 +135,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <div class="tc" data-cmd="/gen"><span class="tc-icon">&#127922;</span><div class="tc-name">Card Gen</div><div class="tc-desc">Generate cards</div></div>
 <div class="tc" data-cmd="/redeem"><span class="tc-icon">&#127873;</span><div class="tc-name">Redeem</div><div class="tc-desc">Redeem code</div></div>
 </div>
+<div class="se">Command Builder</div>
+<div class="builder">
+<div class="hint">Tap a tool to prepare command, edit if needed, then Run.</div>
+<textarea id="commandInput" class="cmd-input" placeholder="/co https://checkout.stripe.com/... 474472"></textarea>
+<button id="runCommandBtn" class="run-btn">RUN IN BOT</button>
+<div id="builderStatus" class="builder-status"></div>
+</div>
 </div>
 <div class="dash-footer">J.HUYNH BOT v2.0 &#8226; SECURE CONNECTION</div>
 </div>
@@ -170,12 +182,29 @@ loginDiv.style.opacity="0";loginDiv.style.transition="opacity 0.4s";
 setTimeout(function(){loginDiv.style.display="none";showDash();},400);
 });
 function showDash(){dashDiv.className="show";}
+var cmdInput=document.getElementById("commandInput");
+var runCommandBtn=document.getElementById("runCommandBtn");
+var builderStatus=document.getElementById("builderStatus");
 var cards=document.querySelectorAll(".tc[data-cmd]");
 for(var i=0;i<cards.length;i++){
 (function(card){card.addEventListener("click",function(){
 var cmd=card.getAttribute("data-cmd");
-if(tg){try{tg.sendData(JSON.stringify({action:"command",command:cmd,user_id:user?user.id:0}));}catch(e){}}
+if(cmdInput){cmdInput.value=cmd+" ";}
+if(builderStatus){builderStatus.textContent="Selected "+cmd+". Fill params and press Run.";}
 });})(cards[i]);
+}
+if(runCommandBtn){
+runCommandBtn.addEventListener("click",function(){
+var text=cmdInput&&cmdInput.value?cmdInput.value.trim():"";
+if(!text){if(builderStatus){builderStatus.textContent="Please enter a command first.";}return;}
+if(!tg){if(builderStatus){builderStatus.textContent="Telegram WebApp not available.";}return;}
+try{
+tg.sendData(JSON.stringify({action:"run_command",command_text:text,user_id:user?user.id:0}));
+if(builderStatus){builderStatus.textContent="Command sent. Check bot response in chat.";}
+}catch(e){
+if(builderStatus){builderStatus.textContent="Send failed: "+(e&&e.message?e.message:"unknown");}
+}
+});
 }
 }catch(e){
 var errDiv=document.getElementById("err");var errMsg=document.getElementById("errMsg");
