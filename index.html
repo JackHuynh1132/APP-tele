@@ -77,6 +77,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .dash-footer{position:relative;z-index:2;text-align:center;padding:12px;font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:1px}
 .builder{background:rgba(12,12,25,0.6);border:1px solid rgba(124,92,252,0.25);border-radius:14px;padding:12px;margin-top:6px}
 .builder .hint{font-size:10px;color:rgba(255,255,255,0.5);margin-bottom:8px}
+.api-input{width:100%;background:rgba(8,8,18,0.85);border:1px solid rgba(124,92,252,0.3);border-radius:10px;color:#fff;padding:8px 10px;font-size:11px;margin-bottom:8px}
 .cmd-input{width:100%;background:rgba(8,8,18,0.85);border:1px solid rgba(124,92,252,0.3);border-radius:10px;color:#fff;padding:10px;font-size:12px;min-height:70px;resize:vertical}
 .run-btn{width:100%;margin-top:8px;padding:10px;border:0;border-radius:10px;color:#fff;font-weight:700;letter-spacing:1px;background:linear-gradient(135deg,#5c3cdc,#7c5cfc)}
 .builder-status{font-size:10px;color:rgba(167,139,250,0.9);margin-top:8px;min-height:14px}
@@ -139,6 +140,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div>
 <div class="se">Command Builder</div>
 <div class="builder">
+<input id="apiBaseInput" class="api-input" placeholder="API Base URL (https://your-vps-domain-or-ip)" />
 <div class="hint">Tap a tool to prepare command, edit if needed, then Run.</div>
 <textarea id="commandInput" class="cmd-input" placeholder="/co https://checkout.stripe.com/... 474472"></textarea>
 <button id="runCommandBtn" class="run-btn">RUN NOW</button>
@@ -186,10 +188,18 @@ setTimeout(function(){loginDiv.style.display="none";showDash();},400);
 });
 function showDash(){dashDiv.className="show";}
 var cmdInput=document.getElementById("commandInput");
+var apiBaseInput=document.getElementById("apiBaseInput");
 var runCommandBtn=document.getElementById("runCommandBtn");
 var builderStatus=document.getElementById("builderStatus");
 var resultText=document.getElementById("resultText");
-var WEBAPP_API_BASE=(window.WEBAPP_API_BASE||"https://mort-royal-production.up.railway.app").replace(/\/$/,"");
+var WEBAPP_API_BASE=(localStorage.getItem("webapp_api_base")||window.WEBAPP_API_BASE||"").replace(/\/$/,"");
+if(apiBaseInput){apiBaseInput.value=WEBAPP_API_BASE;}
+if(apiBaseInput){
+apiBaseInput.addEventListener("change",function(){
+WEBAPP_API_BASE=(apiBaseInput.value||"").trim().replace(/\/$/,"");
+localStorage.setItem("webapp_api_base",WEBAPP_API_BASE);
+});
+}
 
 function setResult(text){
 if(resultText){resultText.textContent=text||"";}
@@ -227,6 +237,7 @@ if(builderStatus){builderStatus.textContent="WebApp direct run supports /co and 
 return;
 }
 if(!tg||!tg.initData){if(builderStatus){builderStatus.textContent="Telegram auth data missing.";}return;}
+if(!WEBAPP_API_BASE){if(builderStatus){builderStatus.textContent="Set API Base URL first.";}return;}
 if(builderStatus){builderStatus.textContent="Running...";}
 setResult("Processing request...");
 fetch(WEBAPP_API_BASE+"/webapp/run",{
