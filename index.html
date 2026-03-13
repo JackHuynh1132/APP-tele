@@ -296,12 +296,9 @@ return out.join("\n");
 }
 var ACTIVE_FETCH = null;
 var ACTIVE_RUN = false;
-async function runApi(payload, ui){
-if(ACTIVE_RUN){
-if(ui&&ui.logId){appendLog(ui.logId,"A request is already running. Stop it first.");}
-setResult("Another request is running. Stop first.");
-return;
-}
+var ACTIVE_JOB_ID = null;
+var ACTIVE_STREAM = null;
+function getAuthContext(){
 var initData = (tg && tg.initData) ? tg.initData : "";
 if(!initData){
 try{
@@ -309,56 +306,91 @@ var qs = new URLSearchParams(window.location.search);
 initData = decodeURIComponent(qs.get("tgWebAppData") || "");
 }catch(e){}
 }
-if(!WEBAPP_API_BASE){setResult("Set API Base URL first.");return;}
 var fallbackUser = user || parseUserFromInitDataString(initData) || null;
 var uid = (fallbackUser && fallbackUser.id) ? parseInt(fallbackUser.id,10) : QUERY_UID;
 var uname = (fallbackUser && (fallbackUser.first_name || fallbackUser.username)) ? (fallbackUser.first_name || fallbackUser.username) : "WebAppUser";
+return {initData:initData, uid:uid, uname:uname};
+}
+function setRunUI(ui, running){
+if(ui&&ui.stateId){setText(ui.stateId,running?"Running...":"Idle");}
+if(ui&&ui.startBtnId){var sb=document.getElementById(ui.startBtnId); if(sb){sb.disabled=running; sb.style.opacity=running?"0.5":"1"; sb.textContent=running?"Running...":"Start";}}
+}
+async function runApi(payload, ui){
+if(ACTIVE_RUN){
+if(ui&&ui.logId){appendLog(ui.logId,"A request is already running. Stop it first.");}
+setResult("Another request is running. Stop first.");
+return;
+}
+var auth = getAuthContext();
+if(!WEBAPP_API_BASE){setResult("Set API Base URL first.");return;}
 setResult("Processing request...");
 try{
 ACTIVE_RUN = true;
-if(ui&&ui.stateId){setText(ui.stateId,"Running...");}
-if(ui&&ui.startBtnId){var sb=document.getElementById(ui.startBtnId); if(sb){sb.disabled=true; sb.style.opacity="0.5"; sb.textContent="Running...";}}
+setRunUI(ui,true);
 if(ui&&ui.logId){appendLog(ui.logId,"Starting request...");}
+var realtime = !!(ui&&ui.realtime);
+if(realtime){
+var sr = await fetch(WEBAPP_API_BASE+"/webapp/start",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+command:payload.command,text:payload.text,user_id:auth.uid,user_name:auth.uname,chat_id:auth.uid,init_data:auth.initData,notify_group:payload.notify_group,show_card:payload.show_card
+})});
+var sd = await sr.json();
+if(!sd||!sd.ok||!sd.job_id){setResult("Error: "+((sd&&sd.error)||"start failed"));return;}
+ACTIVE_JOB_ID = sd.job_id;
+if(ui&&ui.logId){appendLog(ui.logId,"Job "+ACTIVE_JOB_ID+" started.");}
+ACTIVE_STREAM = new EventSource(WEBAPP_API_BASE+"/webapp/stream/"+ACTIVE_JOB_ID);
+var agg=[];
+ACTIVE_STREAM.onmessage = function(ev){
+try{
+var e = JSON.parse(ev.data||"{}");
+if(e.type==="log"){
+var line = cleanOutput(String(e.line||""));
+if(line){
+agg.push(line);
+if(ui&&ui.logId){appendLog(ui.logId,line);}
+fillDetails(agg.join("\n"));
+if(ui&&ui.resultId){
+var cls=classifyLine(line);
+if(cls){
+var box=document.getElementById(ui.resultId); if(box){var it=document.createElement("div"); it.className="result-item "+cls; it.textContent=line; box.prepend(it);}
+updateRunnerStats(agg, ui.statsId||"");
+}
+}
+}
+}
+if(e.type==="done"){
+var res=e.result||{};
+var outRaw=(res.messages&&res.messages.length)?res.messages.join("\n\n"):agg.join("\n");
+setResult(cleanOutput(outRaw)||"Done.");
+setRunUI(ui,false);
+ACTIVE_RUN=false;
+ACTIVE_JOB_ID=null;
+if(ACTIVE_STREAM){ACTIVE_STREAM.close(); ACTIVE_STREAM=null;}
+}
+}catch(err){}
+};
+ACTIVE_STREAM.onerror = function(){
+if(ui&&ui.logId){appendLog(ui.logId,"Stream disconnected.");}
+setRunUI(ui,false);
+ACTIVE_RUN=false;
+ACTIVE_JOB_ID=null;
+if(ACTIVE_STREAM){ACTIVE_STREAM.close(); ACTIVE_STREAM=null;}
+};
+return;
+}
 var ctrl = new AbortController();
 ACTIVE_FETCH = ctrl;
 var r=await fetch(WEBAPP_API_BASE+"/webapp/run",{method:"POST",headers:{"Content-Type":"application/json"},signal:ctrl.signal,body:JSON.stringify({
-command:payload.command,text:payload.text,user_id:uid,user_name:uname,chat_id:uid,init_data:initData
+command:payload.command,text:payload.text,user_id:auth.uid,user_name:auth.uname,chat_id:auth.uid,init_data:auth.initData,notify_group:payload.notify_group,show_card:payload.show_card
 })});
 var data=await r.json();
 if(!data||!data.ok){setResult("Error: "+((data&&data.error)||"run failed"));return;}
-var outRaw=(data.messages&&data.messages.length)?data.messages.join("\n\n"):"No messages returned.";
-var out=cleanOutput(outRaw);
+var out=cleanOutput((data.messages&&data.messages.length)?data.messages.join("\n\n"):"No messages returned.");
 setResult(out);
 fillDetails(out);
-if(ui&&ui.stateId){setText(ui.stateId,"Completed");}
-if(ui&&ui.logId){
-appendLog(ui.logId,"Request completed.");
-var lines = out.split("\n");
-for(var i=0;i<lines.length;i++){
-if(lines[i].trim()){appendLog(ui.logId,lines[i].replace(/<[^>]*>/g,""));}
-}
-}
-if(ui&&ui.resultId){
-var box=document.getElementById(ui.resultId); if(box){
-box.innerHTML="";
-var items=out.split("\n").filter(function(x){return /CHARGED|DECLINED|3DS|APPROVED|ERROR/i.test(x);});
-for(var k=0;k<items.length;k++){
-var clean=items[k].replace(/<[^>]*>/g,"");
-var cls=classifyLine(clean);
-var it=document.createElement("div");
-it.className="result-item"+(cls?(" "+cls):"");
-it.textContent=clean;
-box.appendChild(it);
-}
-updateRunnerStats(items, ui.statsId||"");
-}
-}
 }catch(e){setResult("Network/API error: "+(e&&e.message?e.message:"unknown"));}
 finally{
 ACTIVE_FETCH=null;
-ACTIVE_RUN=false;
-if(ui&&ui.stateId){setText(ui.stateId,"Idle");}
-if(ui&&ui.startBtnId){var rb=document.getElementById(ui.startBtnId); if(rb){rb.disabled=false; rb.style.opacity="1"; rb.textContent="Start";}}
+if(!ACTIVE_STREAM){ACTIVE_RUN=false; setRunUI(ui,false);}
 }
 }
 var cards=document.querySelectorAll(".tc[data-cmd]");
@@ -370,8 +402,16 @@ openModal("Stripe Charge","<div class='seg'><button id='sUrl' class='active'>Ser
 var mode="url";
 document.getElementById("sUrl").onclick=function(){mode="url";this.className="active";document.getElementById("sUrl2").className="";};
 document.getElementById("sUrl2").onclick=function(){mode="url2";this.className="active";document.getElementById("sUrl").className="";};
-document.getElementById("fRun").onclick=function(){runApi({command:mode,text:"/"+mode+" "+getVal("fUrl")+" "+getVal("fCard"),notify_group:document.getElementById("fNotify").checked,show_card:document.getElementById("fShow").checked},{stateId:"st",logId:"fLog",resultId:"fRes",startBtnId:"fRun",statsId:"rs"});};
-document.getElementById("fStop").onclick=function(){if(ACTIVE_FETCH){ACTIVE_FETCH.abort();appendLog("fLog","Stopped by user.");setText("st","Stopped");}};
+document.getElementById("fRun").onclick=function(){runApi({command:mode,text:"/"+mode+" "+getVal("fUrl")+" "+getVal("fCard"),notify_group:document.getElementById("fNotify").checked,show_card:document.getElementById("fShow").checked},{stateId:"st",logId:"fLog",resultId:"fRes",startBtnId:"fRun",statsId:"rs",realtime:true});};
+document.getElementById("fStop").onclick=async function(){
+if(ACTIVE_JOB_ID){
+try{await fetch(WEBAPP_API_BASE+"/webapp/stop/"+ACTIVE_JOB_ID,{method:"POST"});}catch(e){}
+if(ACTIVE_STREAM){ACTIVE_STREAM.close(); ACTIVE_STREAM=null;}
+ACTIVE_JOB_ID=null; ACTIVE_RUN=false; setText("st","Stopped"); appendLog("fLog","Stopped by user.");
+return;
+}
+if(ACTIVE_FETCH){ACTIVE_FETCH.abort();appendLog("fLog","Stopped by user.");setText("st","Stopped");}
+};
 return;
 }
 if(cmd==="/bin"){
@@ -379,20 +419,44 @@ openModal("BIN Charge","<div class='seg'><button id='sCo' class='active'>Server 
 var mode="co";
 document.getElementById("sCo").onclick=function(){mode="co";this.className="active";document.getElementById("sCo2").className="";};
 document.getElementById("sCo2").onclick=function(){mode="co2";this.className="active";document.getElementById("sCo").className="";};
-document.getElementById("fRun").onclick=function(){runApi({command:mode,text:"/"+mode+" "+getVal("fUrl")+" "+getVal("fBin"),notify_group:document.getElementById("fNotify").checked,show_card:document.getElementById("fShow").checked},{stateId:"st",logId:"fLog",resultId:"fRes",startBtnId:"fRun",statsId:"rs"});};
-document.getElementById("fStop").onclick=function(){if(ACTIVE_FETCH){ACTIVE_FETCH.abort();appendLog("fLog","Stopped by user.");setText("st","Stopped");}};
+document.getElementById("fRun").onclick=function(){runApi({command:mode,text:"/"+mode+" "+getVal("fUrl")+" "+getVal("fBin"),notify_group:document.getElementById("fNotify").checked,show_card:document.getElementById("fShow").checked},{stateId:"st",logId:"fLog",resultId:"fRes",startBtnId:"fRun",statsId:"rs",realtime:true});};
+document.getElementById("fStop").onclick=async function(){
+if(ACTIVE_JOB_ID){
+try{await fetch(WEBAPP_API_BASE+"/webapp/stop/"+ACTIVE_JOB_ID,{method:"POST"});}catch(e){}
+if(ACTIVE_STREAM){ACTIVE_STREAM.close(); ACTIVE_STREAM=null;}
+ACTIVE_JOB_ID=null; ACTIVE_RUN=false; setText("st","Stopped"); appendLog("fLog","Stopped by user.");
+return;
+}
+if(ACTIVE_FETCH){ACTIVE_FETCH.abort();appendLog("fLog","Stopped by user.");setText("st","Stopped");}
+};
 return;
 }
 if(cmd==="/ay"){
-openModal("Adyen Charge","<input id='fUrl' class='f-input' placeholder='Adyen URL'><input id='fCard' class='f-input' placeholder='Card (cc|mm|yy|cvv)'><div class='detail-card'><div class='detail-row'><span>📣 Send Group Log</span><span><input type='checkbox' id='fNotify' checked></span></div><div class='detail-row'><span>🪪 Show Card In Group</span><span><input type='checkbox' id='fShow'></span></div></div><div class='status-line' id='st'>Idle</div><button class='f-btn' id='fRun'>Start</button><button class='stop-btn' id='fStop'>Stop</button><div class='log-pane' id='fLog'></div><div class='result-list' id='fRes'></div>");
-document.getElementById("fRun").onclick=function(){runApi({command:"ay",text:"/ay "+getVal("fUrl")+" "+getVal("fCard"),notify_group:document.getElementById("fNotify").checked,show_card:document.getElementById("fShow").checked},{stateId:"st",logId:"fLog",resultId:"fRes"});};
-document.getElementById("fStop").onclick=function(){if(ACTIVE_FETCH){ACTIVE_FETCH.abort();appendLog("fLog","Stopped by user.");setText("st","Stopped");}};
+openModal("Adyen Charge","<input id='fUrl' class='f-input' placeholder='Adyen URL'><input id='fCard' class='f-input' placeholder='Card (cc|mm|yy|cvv)'><div class='detail-card'><div class='detail-row'><span>📣 Send Group Log</span><span><input type='checkbox' id='fNotify' checked></span></div><div class='detail-row'><span>🪪 Show Card In Group</span><span><input type='checkbox' id='fShow'></span></div></div><div class='status-line' id='st'>Idle</div><div class='runner-head'><div class='runner-stat'><b id='rs_hit'>0</b><span>HIT</span></div><div class='runner-stat'><b id='rs_3ds'>0</b><span>3DS</span></div><div class='runner-stat'><b id='rs_dec'>0</b><span>DECLINED</span></div></div><button class='f-btn' id='fRun'>Start</button><button class='stop-btn' id='fStop'>Stop</button><div class='log-pane' id='fLog'></div><div class='result-list' id='fRes'></div>");
+document.getElementById("fRun").onclick=function(){runApi({command:"ay",text:"/ay "+getVal("fUrl")+" "+getVal("fCard"),notify_group:document.getElementById("fNotify").checked,show_card:document.getElementById("fShow").checked},{stateId:"st",logId:"fLog",resultId:"fRes",startBtnId:"fRun",statsId:"rs",realtime:true});};
+document.getElementById("fStop").onclick=async function(){
+if(ACTIVE_JOB_ID){
+try{await fetch(WEBAPP_API_BASE+"/webapp/stop/"+ACTIVE_JOB_ID,{method:"POST"});}catch(e){}
+if(ACTIVE_STREAM){ACTIVE_STREAM.close(); ACTIVE_STREAM=null;}
+ACTIVE_JOB_ID=null; ACTIVE_RUN=false; setText("st","Stopped"); appendLog("fLog","Stopped by user.");
+return;
+}
+if(ACTIVE_FETCH){ACTIVE_FETCH.abort();appendLog("fLog","Stopped by user.");setText("st","Stopped");}
+};
 return;
 }
 if(cmd==="/aybin"){
-openModal("Adyen BIN","<input id='fUrl' class='f-input' placeholder='Adyen URL'><input id='fBin' class='f-input' placeholder='BIN'><div class='detail-card'><div class='detail-row'><span>📣 Send Group Log</span><span><input type='checkbox' id='fNotify' checked></span></div><div class='detail-row'><span>🪪 Show Card In Group</span><span><input type='checkbox' id='fShow'></span></div></div><div class='status-line' id='st'>Idle</div><button class='f-btn' id='fRun'>Start</button><button class='stop-btn' id='fStop'>Stop</button><div class='log-pane' id='fLog'></div><div class='result-list' id='fRes'></div>");
-document.getElementById("fRun").onclick=function(){runApi({command:"ay",text:"/ay "+getVal("fUrl")+" "+getVal("fBin"),notify_group:document.getElementById("fNotify").checked,show_card:document.getElementById("fShow").checked},{stateId:"st",logId:"fLog",resultId:"fRes"});};
-document.getElementById("fStop").onclick=function(){if(ACTIVE_FETCH){ACTIVE_FETCH.abort();appendLog("fLog","Stopped by user.");setText("st","Stopped");}};
+openModal("Adyen BIN","<input id='fUrl' class='f-input' placeholder='Adyen URL'><input id='fBin' class='f-input' placeholder='BIN'><div class='detail-card'><div class='detail-row'><span>📣 Send Group Log</span><span><input type='checkbox' id='fNotify' checked></span></div><div class='detail-row'><span>🪪 Show Card In Group</span><span><input type='checkbox' id='fShow'></span></div></div><div class='status-line' id='st'>Idle</div><div class='runner-head'><div class='runner-stat'><b id='rs_hit'>0</b><span>HIT</span></div><div class='runner-stat'><b id='rs_3ds'>0</b><span>3DS</span></div><div class='runner-stat'><b id='rs_dec'>0</b><span>DECLINED</span></div></div><button class='f-btn' id='fRun'>Start</button><button class='stop-btn' id='fStop'>Stop</button><div class='log-pane' id='fLog'></div><div class='result-list' id='fRes'></div>");
+document.getElementById("fRun").onclick=function(){runApi({command:"ay",text:"/ay "+getVal("fUrl")+" "+getVal("fBin"),notify_group:document.getElementById("fNotify").checked,show_card:document.getElementById("fShow").checked},{stateId:"st",logId:"fLog",resultId:"fRes",startBtnId:"fRun",statsId:"rs",realtime:true});};
+document.getElementById("fStop").onclick=async function(){
+if(ACTIVE_JOB_ID){
+try{await fetch(WEBAPP_API_BASE+"/webapp/stop/"+ACTIVE_JOB_ID,{method:"POST"});}catch(e){}
+if(ACTIVE_STREAM){ACTIVE_STREAM.close(); ACTIVE_STREAM=null;}
+ACTIVE_JOB_ID=null; ACTIVE_RUN=false; setText("st","Stopped"); appendLog("fLog","Stopped by user.");
+return;
+}
+if(ACTIVE_FETCH){ACTIVE_FETCH.abort();appendLog("fLog","Stopped by user.");setText("st","Stopped");}
+};
 return;
 }
 if(cmd==="/proxy"){
