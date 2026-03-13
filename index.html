@@ -203,6 +203,7 @@ var modalBody=document.getElementById("modalBody");
 var modalCloseBtn=document.getElementById("modalCloseBtn");
 var qsInit = new URLSearchParams(window.location.search);
 var WEBAPP_API_BASE=((qsInit.get("api")||"").trim()||window.WEBAPP_API_BASE||"").replace(/\/$/,"");
+var QUERY_UID = parseInt((qsInit.get("uid")||"0"),10) || 0;
 
 function setResult(text){
 if(resultText){resultText.textContent=text||"";}
@@ -236,7 +237,7 @@ initData = decodeURIComponent(qs.get("tgWebAppData") || "");
 }
 if(!WEBAPP_API_BASE){setResult("Set API Base URL first.");return;}
 var fallbackUser = user || parseUserFromInitDataString(initData) || null;
-var uid = (fallbackUser && fallbackUser.id) ? parseInt(fallbackUser.id,10) : 0;
+var uid = (fallbackUser && fallbackUser.id) ? parseInt(fallbackUser.id,10) : QUERY_UID;
 var uname = (fallbackUser && (fallbackUser.first_name || fallbackUser.username)) ? (fallbackUser.first_name || fallbackUser.username) : "WebAppUser";
 setResult("Processing request...");
 try{
