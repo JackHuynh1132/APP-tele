@@ -348,27 +348,59 @@ return;
 var auth = getAuthContext();
 if(!WEBAPP_API_BASE){setResult("Set API Base URL first.");return;}
 setResult("Processing request...");
+var waitTicker = null;
 try{
 ACTIVE_RUN = true;
 setRunUI(ui,true);
 if(ui&&ui.logId){appendLog(ui.logId,"Starting request...");}
 var realtime = !!(ui&&ui.realtime);
 if(realtime){
+if(ui&&ui.logId){appendLog(ui.logId,"POST /webapp/start");}
 var sr = await fetch(WEBAPP_API_BASE+"/webapp/start",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
 command:payload.command,text:payload.text,user_id:auth.uid,user_name:auth.uname,chat_id:auth.uid,init_data:auth.initData,notify_group:payload.notify_group,show_card:payload.show_card
 })});
-var sd = await sr.json();
-if(!sd||!sd.ok||!sd.job_id){setResult("Error: "+((sd&&sd.error)||"start failed"));return;}
+if(!sr.ok){
+var t1 = await sr.text().catch(function(){return "";});
+var msg1 = "Start failed HTTP "+sr.status+" "+sr.statusText;
+if(ui&&ui.logId){appendLog(ui.logId,msg1);}
+if(ui&&ui.logId&&t1){appendLog(ui.logId,cleanOutput(t1).slice(0,180));}
+setResult(msg1);
+return;
+}
+var sd = null;
+try{sd = await sr.json();}catch(ej){
+var msgJson = "Invalid JSON from /webapp/start";
+if(ui&&ui.logId){appendLog(ui.logId,msgJson);}
+setResult(msgJson);
+return;
+}
+if(!sd||!sd.ok||!sd.job_id){
+var msgStart = "Error: "+((sd&&sd.error)||"start failed");
+if(ui&&ui.logId){appendLog(ui.logId,msgStart);}
+setResult(msgStart);
+return;
+}
 ACTIVE_JOB_ID = sd.job_id;
 if(ui&&ui.logId){appendLog(ui.logId,"Job "+ACTIVE_JOB_ID+" started.");}
 ACTIVE_STREAM = new EventSource(WEBAPP_API_BASE+"/webapp/stream/"+ACTIVE_JOB_ID);
 var agg=[];
+var firstLogAt = 0;
+var streamOpen = false;
+waitTicker = setInterval(function(){
+if(!ACTIVE_RUN){clearInterval(waitTicker); waitTicker=null; return;}
+if(ui&&ui.logId){appendLog(ui.logId, firstLogAt ? "Receiving logs..." : "Waiting for realtime logs...");}
+}, 2500);
+ACTIVE_STREAM.onopen = function(){
+streamOpen = true;
+if(ui&&ui.logId){appendLog(ui.logId,"Realtime stream connected.");}
+};
 ACTIVE_STREAM.onmessage = function(ev){
 try{
 var e = JSON.parse(ev.data||"{}");
 if(e.type==="log"){
 var line = cleanOutput(String(e.line||""));
 if(line){
+if(!firstLogAt){firstLogAt = Date.now();}
 agg.push(line);
 if(ui&&ui.logId){appendLog(ui.logId,line);}
 fillDetails(agg.join("\n"));
@@ -385,6 +417,7 @@ if(e.type==="done"){
 var res=e.result||{};
 var outRaw=(res.messages&&res.messages.length)?res.messages.join("\n\n"):agg.join("\n");
 setResult(cleanOutput(outRaw)||"Done.");
+if(waitTicker){clearInterval(waitTicker); waitTicker=null;}
 setRunUI(ui,false);
 ACTIVE_RUN=false;
 ACTIVE_JOB_ID=null;
@@ -392,7 +425,12 @@ if(ACTIVE_STREAM){ACTIVE_STREAM.close(); ACTIVE_STREAM=null;}
 }
 }catch(err){}
 };
-ACTIVE_STREAM.onerror = function(){
+ACTIVE_STREAM.onerror = function(ev){
+if(waitTicker){clearInterval(waitTicker); waitTicker=null;}
+if(ui&&ui.logId){
+appendLog(ui.logId, streamOpen ? "Stream disconnected." : "Stream connect failed.");
+if(ev && ev.type){appendLog(ui.logId,"Event: "+ev.type);}
+}
 setRunUI(ui,false);
 ACTIVE_RUN=false;
 ACTIVE_JOB_ID=null;
@@ -412,6 +450,7 @@ setResult(out);
 fillDetails(out);
 }catch(e){setResult("Network/API error: "+(e&&e.message?e.message:"unknown"));}
 finally{
+if(waitTicker){clearInterval(waitTicker); waitTicker=null;}
 ACTIVE_FETCH=null;
 if(!ACTIVE_STREAM){ACTIVE_RUN=false; setRunUI(ui,false);}
 }
