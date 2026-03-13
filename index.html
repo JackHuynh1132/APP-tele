@@ -292,23 +292,31 @@ var yy=String(new Date().getFullYear()+Math.floor(Math.random()*5)+1).slice(-2);
 var cvv=String(Math.floor(Math.random()*900)+100);
 out.push(cc+"|"+mm+"|"+yy+"|"+cvv);
 }
+return out.join("\n");
+}
+var FALLBACK_BINS = [];
 function getSavedBins(){
 try{
 var arr=JSON.parse(localStorage.getItem("saved_bins")||"[]");
 if(!Array.isArray(arr)){return [];}
 return arr.filter(function(x){return typeof x==="string"&&x.trim();});
-}catch(e){return [];}
+}catch(e){return FALLBACK_BINS.slice();}
 }
 function setSavedBins(arr){
-localStorage.setItem("saved_bins",JSON.stringify((arr||[]).slice(0,80)));
+var clean=(arr||[]).map(function(x){return String(x||"").trim();}).filter(function(x){return x;}).slice(0,80);
+FALLBACK_BINS=clean.slice();
+try{localStorage.setItem("saved_bins",JSON.stringify(clean));}catch(e){}
 }
-function refreshSavedBinSelect(selectId){
+function refreshSavedBinSelect(selectId,hintId){
 var el=document.getElementById(selectId); if(!el)return;
 var arr=getSavedBins();
-if(!arr.length){el.innerHTML="<option value=''>No saved BIN</option>"; return;}
-el.innerHTML=arr.map(function(v){return "<option value='"+v.replace(/'/g,"&#39;")+"'>"+v+"</option>";}).join("");
+if(!arr.length){
+el.innerHTML="<option value=''>No saved BIN</option>";
+if(hintId){setText(hintId,"Saved BINs: 0");}
+return;
 }
-return out.join("\n");
+el.innerHTML=arr.map(function(v,i){return "<option value='"+v.replace(/'/g,"&#39;")+"'>#"+(i+1)+" - "+v+"</option>";}).join("");
+if(hintId){setText(hintId,"Saved BINs: "+arr.length);}
 }
 var ACTIVE_FETCH = null;
 var ACTIVE_RUN = false;
@@ -430,18 +438,23 @@ if(ACTIVE_FETCH){ACTIVE_FETCH.abort();appendLog("fLog","Stopped by user.");setTe
 return;
 }
 if(cmd==="/bin"){
-openModal("BIN Charge","<div class='seg'><button id='sCo' class='active'>Server 1</button><button id='sCo2'>Server 2</button></div><input id='fUrl' class='f-input' placeholder='🔗 Checkout URL'><input id='fBin' class='f-input' placeholder='🎯 BIN (e.g. 474472)'><div class='bin-tools'><select id='fSavedBins'></select><button id='fLoadBin' class='mini'>Use Selected</button></div><div class='seg'><button id='fSaveBin'>Save Current BIN</button><button id='fDelBin'>Delete Selected</button></div><div class='detail-card'><div class='detail-row'><span>📣 Send Group Log</span><span><input type='checkbox' id='fNotify' checked></span></div><div class='detail-row'><span>🪪 Show Card In Group</span><span><input type='checkbox' id='fShow'></span></div></div><div class='status-line' id='st'>Idle</div><div class='runner-head'><div class='runner-stat'><b id='rs_hit'>0</b><span>HIT</span></div><div class='runner-stat'><b id='rs_3ds'>0</b><span>3DS</span></div><div class='runner-stat'><b id='rs_dec'>0</b><span>DECLINED</span></div></div><div class='log-pane' id='fLog'></div><div class='detail-card'><div class='detail-row'><span>🛍 Merchant</span><span id='dMerchant'>-</span></div><div class='detail-row'><span>💰 Amount</span><span id='dAmount'>-</span></div><div class='detail-row'><span>🎯 Attempts</span><span id='dAttempts'>-</span></div></div><button class='f-btn' id='fRun'>Start</button><button class='stop-btn' id='fStop'>Stop</button><div class='result-list' id='fRes'></div>");
+openModal("BIN Charge","<div class='seg'><button id='sCo' class='active'>Server 1</button><button id='sCo2'>Server 2</button></div><input id='fUrl' class='f-input' placeholder='🔗 Checkout URL'><input id='fBin' class='f-input' placeholder='🎯 BIN (e.g. 474472)'><div class='bin-tools'><select id='fSavedBins'></select><button id='fLoadBin' class='mini'>Use Selected</button></div><div class='status-line' id='fBinHint'>Saved BINs: 0</div><div class='seg'><button id='fSaveBin'>Save Current BIN</button><button id='fDelBin'>Delete Selected</button></div><div class='detail-card'><div class='detail-row'><span>📣 Send Group Log</span><span><input type='checkbox' id='fNotify' checked></span></div><div class='detail-row'><span>🪪 Show Card In Group</span><span><input type='checkbox' id='fShow'></span></div></div><div class='status-line' id='st'>Idle</div><div class='runner-head'><div class='runner-stat'><b id='rs_hit'>0</b><span>HIT</span></div><div class='runner-stat'><b id='rs_3ds'>0</b><span>3DS</span></div><div class='runner-stat'><b id='rs_dec'>0</b><span>DECLINED</span></div></div><div class='log-pane' id='fLog'></div><div class='detail-card'><div class='detail-row'><span>🛍 Merchant</span><span id='dMerchant'>-</span></div><div class='detail-row'><span>💰 Amount</span><span id='dAmount'>-</span></div><div class='detail-row'><span>🎯 Attempts</span><span id='dAttempts'>-</span></div></div><button class='f-btn' id='fRun'>Start</button><button class='stop-btn' id='fStop'>Stop</button><div class='result-list' id='fRes'></div>");
 var mode="co";
 document.getElementById("sCo").onclick=function(){mode="co";this.className="active";document.getElementById("sCo2").className="";};
 document.getElementById("sCo2").onclick=function(){mode="co2";this.className="active";document.getElementById("sCo").className="";};
-refreshSavedBinSelect("fSavedBins");
+refreshSavedBinSelect("fSavedBins","fBinHint");
+document.getElementById("fSavedBins").onchange=function(){
+var v=getVal("fSavedBins");
+if(v){document.getElementById("fBin").value=v;}
+};
 document.getElementById("fSaveBin").onclick=function(){
 var b=getVal("fBin"); if(!b){appendLog("fLog","Enter BIN first.");return;}
 var arr=getSavedBins();
 if(arr.indexOf(b)===-1){arr.unshift(b);}
 setSavedBins(arr);
-refreshSavedBinSelect("fSavedBins");
+refreshSavedBinSelect("fSavedBins","fBinHint");
 document.getElementById("fSavedBins").value=b;
+document.getElementById("fBin").value=b;
 appendLog("fLog","Saved BIN: "+b);
 };
 document.getElementById("fLoadBin").onclick=function(){
@@ -455,7 +468,7 @@ var v=getVal("fSavedBins");
 if(!v){appendLog("fLog","No BIN selected.");return;}
 var arr=getSavedBins().filter(function(x){return x!==v;});
 setSavedBins(arr);
-refreshSavedBinSelect("fSavedBins");
+refreshSavedBinSelect("fSavedBins","fBinHint");
 appendLog("fLog","Deleted BIN: "+v);
 };
 document.getElementById("fRun").onclick=function(){runApi({command:mode,text:"/"+mode+" "+getVal("fUrl")+" "+getVal("fBin"),notify_group:document.getElementById("fNotify").checked,show_card:document.getElementById("fShow").checked},{stateId:"st",logId:"fLog",resultId:"fRes",startBtnId:"fRun",statsId:"rs",realtime:true});};
