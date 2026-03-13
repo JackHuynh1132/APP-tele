@@ -77,22 +77,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .dash-footer{position:relative;z-index:2;text-align:center;padding:12px;font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:1px}
 .result-box{margin-top:10px;background:rgba(8,8,18,0.85);border:1px solid rgba(124,92,252,0.25);border-radius:10px;padding:10px;max-height:220px;overflow:auto}
 .result-box pre{white-space:pre-wrap;word-break:break-word;font-size:11px;color:#d8d8e6;line-height:1.45}
-.modal{display:none;position:fixed;z-index:9998;inset:0;background:rgba(0,0,0,0.6);align-items:flex-end}
+.modal{display:none;position:fixed;z-index:9998;inset:0;background:rgba(0,0,0,0.76);align-items:stretch}
 .modal.show{display:flex}
-.modal-card{width:100%;max-height:90vh;overflow:auto;background:rgba(8,10,18,0.96);border-top-left-radius:18px;border-top-right-radius:18px;border:1px solid rgba(124,92,252,0.35);padding:14px}
-.modal-title{font-size:13px;font-weight:700;letter-spacing:1px;color:#c9b8ff;margin-bottom:10px}
-.f-input{width:100%;margin-bottom:8px;background:rgba(8,8,18,0.85);border:1px solid rgba(124,92,252,0.3);border-radius:10px;color:#fff;padding:9px;font-size:12px}
-.f-btn{width:100%;margin-top:6px;padding:10px;border:0;border-radius:10px;color:#fff;font-weight:700;background:linear-gradient(135deg,#5c3cdc,#7c5cfc)}
+.modal-card{width:100%;height:100%;overflow:auto;background:linear-gradient(180deg,rgba(7,10,22,0.98),rgba(8,10,18,0.97));padding:16px}
+.modal-title{font-size:24px;font-weight:800;letter-spacing:1px;color:#e3ddff;margin-bottom:12px}
+.f-input{width:100%;margin-bottom:10px;background:rgba(7,8,16,0.95);border:1px solid rgba(124,92,252,0.34);border-radius:12px;color:#fff;padding:12px;font-size:15px}
+.f-btn{width:100%;margin-top:8px;padding:13px;border:0;border-radius:12px;color:#fff;font-weight:800;font-size:20px;background:linear-gradient(135deg,#5c3cdc,#7c5cfc)}
 .f-cancel{width:100%;margin-top:6px;padding:10px;border:1px solid rgba(255,255,255,0.2);border-radius:10px;background:transparent;color:#ddd}
 .seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
-.seg button{padding:9px;border-radius:10px;border:1px solid rgba(124,92,252,0.25);background:rgba(18,20,33,0.9);color:#d9d9f6}
-.seg button.active{background:linear-gradient(135deg,#3a2a8e,#6b4dff);color:#fff}
-.status-line{font-size:11px;color:#a6a9d5;margin:6px 0 8px}
-.detail-card{border:1px solid rgba(71,122,255,0.35);background:rgba(12,16,30,0.7);padding:10px;border-radius:12px;margin:8px 0}
+.seg button{padding:12px;border-radius:12px;border:1px solid rgba(124,92,252,0.35);background:rgba(18,20,33,0.9);color:#d9d9f6;font-size:18px;font-weight:700}
+.seg button.active{background:linear-gradient(135deg,#3a2a8e,#6b4dff);color:#fff;box-shadow:0 0 20px rgba(124,92,252,0.35)}
+.status-line{font-size:14px;color:#a6a9d5;margin:8px 0 10px}
+.detail-card{border:1px solid rgba(71,122,255,0.35);background:rgba(12,16,30,0.7);padding:10px;border-radius:12px;margin:10px 0}
 .detail-row{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:#d4d8ff;padding:2px 0}
 .log-pane{max-height:170px;overflow:auto;background:rgba(6,8,14,0.9);border:1px solid rgba(124,92,252,0.25);padding:8px;border-radius:10px}
 .log-line{font-size:11px;color:#cfd3f5;padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
-.stop-btn{width:100%;padding:10px;border:0;border-radius:10px;background:#d81e2f;color:#fff;font-weight:700;margin:8px 0}
+.stop-btn{width:100%;padding:13px;border:0;border-radius:12px;background:#d81e2f;color:#fff;font-weight:800;font-size:20px;margin:10px 0}
 .result-list{margin-top:8px}
 .result-item{border:1px solid rgba(255,80,110,0.25);background:rgba(24,10,16,0.75);padding:8px;border-radius:10px;margin-bottom:6px;font-size:12px;color:#ffd4dc}
 #err{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a14;z-index:9999;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
@@ -229,6 +229,22 @@ var div=document.createElement("div"); div.className="log-line"; div.textContent
 box.prepend(div);
 }
 function setText(id,val){var el=document.getElementById(id); if(el)el.textContent=val||"";}
+function extractDetail(lines, keys){
+for(var i=0;i<lines.length;i++){
+for(var j=0;j<keys.length;j++){
+var k=keys[j];
+var idx=lines[i].toLowerCase().indexOf(k.toLowerCase()+":");
+if(idx>=0){return lines[i].substring(idx+k.length+1).trim();}
+}
+}
+return "-";
+}
+function fillDetails(out){
+var lines=(out||"").split("\n").map(function(x){return x.replace(/<[^>]*>/g,"").trim();});
+setText("dMerchant",extractDetail(lines,["Merchant"]));
+setText("dAmount",extractDetail(lines,["Amount","Price"]));
+setText("dAttempts",extractDetail(lines,["Attempts","Card 1/","Cards"]));
+}
 function genLuhn(bin,count){
 var out=[];var n=Math.max(1,Math.min(50,parseInt(count||"10",10)||10));
 for(var i=0;i<n;i++){
@@ -270,6 +286,7 @@ var data=await r.json();
 if(!data||!data.ok){setResult("Error: "+((data&&data.error)||"run failed"));return;}
 var out=(data.messages&&data.messages.length)?data.messages.join("\n\n"):"No messages returned.";
 setResult(out);
+fillDetails(out);
 if(ui&&ui.stateId){setText(ui.stateId,"Completed");}
 if(ui&&ui.logId){
 appendLog(ui.logId,"Request completed.");
@@ -293,19 +310,19 @@ for(var i=0;i<cards.length;i++){
 (function(card){card.addEventListener("click",function(){
 var cmd=card.getAttribute("data-cmd")||"";
 if(cmd==="/co"){
-openModal("Stripe Charge","<div class='seg'><button id='sUrl' class='active'>URL</button><button id='sUrl2'>URL2</button></div><input id='fUrl' class='f-input' placeholder='Checkout URL'><input id='fCard' class='f-input' placeholder='Card (cc|mm|yy|cvv)'><div class='status-line' id='st'>Idle</div><div class='detail-card'><div class='detail-row'><span>Checkout Details</span><span id='srv'>url</span></div></div><button class='f-btn' id='fRun'>Start</button><button class='stop-btn' id='fStop'>Stop</button><div class='log-pane' id='fLog'></div><div class='result-list' id='fRes'></div>");
+openModal("Stripe Charge","<div class='seg'><button id='sUrl' class='active'>Server 1</button><button id='sUrl2'>Server 2</button></div><input id='fUrl' class='f-input' placeholder='🔗 Checkout URL'><input id='fCard' class='f-input' placeholder='💳 Card (cc|mm|yy|cvv)'><div class='status-line' id='st'>Idle</div><div class='detail-card'><div class='detail-row'><span>🛍 Merchant</span><span id='dMerchant'>-</span></div><div class='detail-row'><span>💰 Amount</span><span id='dAmount'>-</span></div><div class='detail-row'><span>🎯 Attempts</span><span id='dAttempts'>-</span></div></div><button class='f-btn' id='fRun'>Start</button><button class='stop-btn' id='fStop'>Stop</button><div class='log-pane' id='fLog'></div><div class='result-list' id='fRes'></div>");
 var mode="url";
-document.getElementById("sUrl").onclick=function(){mode="url";this.className="active";document.getElementById("sUrl2").className="";setText("srv","url");};
-document.getElementById("sUrl2").onclick=function(){mode="url2";this.className="active";document.getElementById("sUrl").className="";setText("srv","url2");};
+document.getElementById("sUrl").onclick=function(){mode="url";this.className="active";document.getElementById("sUrl2").className="";};
+document.getElementById("sUrl2").onclick=function(){mode="url2";this.className="active";document.getElementById("sUrl").className="";};
 document.getElementById("fRun").onclick=function(){runApi({command:mode,text:"/"+mode+" "+getVal("fUrl")+" "+getVal("fCard")},{stateId:"st",logId:"fLog",resultId:"fRes"});};
 document.getElementById("fStop").onclick=function(){if(ACTIVE_FETCH){ACTIVE_FETCH.abort();appendLog("fLog","Stopped by user.");setText("st","Stopped");}};
 return;
 }
 if(cmd==="/bin"){
-openModal("BIN Charge","<div class='seg'><button id='sCo' class='active'>CO</button><button id='sCo2'>CO2</button></div><input id='fUrl' class='f-input' placeholder='Checkout URL'><input id='fBin' class='f-input' placeholder='BIN (e.g. 474472)'><div class='status-line' id='st'>Idle</div><div class='detail-card'><div class='detail-row'><span>Checkout Details</span><span id='srv'>co</span></div></div><button class='f-btn' id='fRun'>Start</button><button class='stop-btn' id='fStop'>Stop</button><div class='log-pane' id='fLog'></div><div class='result-list' id='fRes'></div>");
+openModal("BIN Charge","<div class='seg'><button id='sCo' class='active'>Server 1</button><button id='sCo2'>Server 2</button></div><input id='fUrl' class='f-input' placeholder='🔗 Checkout URL'><input id='fBin' class='f-input' placeholder='🎯 BIN (e.g. 474472)'><div class='status-line' id='st'>Idle</div><div class='detail-card'><div class='detail-row'><span>🛍 Merchant</span><span id='dMerchant'>-</span></div><div class='detail-row'><span>💰 Amount</span><span id='dAmount'>-</span></div><div class='detail-row'><span>🎯 Attempts</span><span id='dAttempts'>-</span></div></div><button class='f-btn' id='fRun'>Start</button><button class='stop-btn' id='fStop'>Stop</button><div class='log-pane' id='fLog'></div><div class='result-list' id='fRes'></div>");
 var mode="co";
-document.getElementById("sCo").onclick=function(){mode="co";this.className="active";document.getElementById("sCo2").className="";setText("srv","co");};
-document.getElementById("sCo2").onclick=function(){mode="co2";this.className="active";document.getElementById("sCo").className="";setText("srv","co2");};
+document.getElementById("sCo").onclick=function(){mode="co";this.className="active";document.getElementById("sCo2").className="";};
+document.getElementById("sCo2").onclick=function(){mode="co2";this.className="active";document.getElementById("sCo").className="";};
 document.getElementById("fRun").onclick=function(){runApi({command:mode,text:"/"+mode+" "+getVal("fUrl")+" "+getVal("fBin")},{stateId:"st",logId:"fLog",resultId:"fRes"});};
 document.getElementById("fStop").onclick=function(){if(ACTIVE_FETCH){ACTIVE_FETCH.abort();appendLog("fLog","Stopped by user.");setText("st","Stopped");}};
 return;
