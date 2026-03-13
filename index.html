@@ -215,9 +215,17 @@ var modalCloseBtn=document.getElementById("modalCloseBtn");
 var qsInit = new URLSearchParams(window.location.search);
 var WEBAPP_API_BASE=((qsInit.get("api")||"").trim()||window.WEBAPP_API_BASE||"").replace(/\/$/,"");
 var QUERY_UID = parseInt((qsInit.get("uid")||"0"),10) || 0;
+var DISPLAY_UID = (user && user.id) ? parseInt(user.id,10) : QUERY_UID;
 
 function setResult(text){
 if(resultText){resultText.textContent=text||"";}
+}
+function decodeHtmlEntities(str){
+var t=document.createElement("textarea"); t.innerHTML=str; return t.value;
+}
+function cleanOutput(raw){
+var s=(raw||"").replace(/<\/?pre>/gi,"").replace(/<[^>]*>/g,"");
+return decodeHtmlEntities(s).trim();
 }
 function closeModal(){featureModal.className="modal";}
 if(modalCloseBtn){modalCloseBtn.addEventListener("click",closeModal);}
@@ -240,7 +248,7 @@ if(idx>=0){return lines[i].substring(idx+k.length+1).trim();}
 return "-";
 }
 function fillDetails(out){
-var lines=(out||"").split("\n").map(function(x){return x.replace(/<[^>]*>/g,"").trim();});
+var lines=cleanOutput(out).split("\n").map(function(x){return x.trim();});
 setText("dMerchant",extractDetail(lines,["Merchant"]));
 setText("dAmount",extractDetail(lines,["Amount","Price"]));
 setText("dAttempts",extractDetail(lines,["Attempts","Card 1/","Cards"]));
@@ -284,7 +292,8 @@ command:payload.command,text:payload.text,user_id:uid,user_name:uname,chat_id:ui
 })});
 var data=await r.json();
 if(!data||!data.ok){setResult("Error: "+((data&&data.error)||"run failed"));return;}
-var out=(data.messages&&data.messages.length)?data.messages.join("\n\n"):"No messages returned.";
+var outRaw=(data.messages&&data.messages.length)?data.messages.join("\n\n"):"No messages returned.";
+var out=cleanOutput(outRaw);
 setResult(out);
 fillDetails(out);
 if(ui&&ui.stateId){setText(ui.stateId,"Completed");}
@@ -339,16 +348,42 @@ document.getElementById("fRun").onclick=function(){runApi({command:"ay",text:"/a
 document.getElementById("fStop").onclick=function(){if(ACTIVE_FETCH){ACTIVE_FETCH.abort();appendLog("fLog","Stopped by user.");setText("st","Stopped");}};
 return;
 }
-if(cmd==="/proxy"){runApi({command:"proxy",text:"/proxy check"},{logId:null});return;}
-if(cmd==="/status"){openModal("Status & History","<button class='f-btn' id='fStatus'>Load Status</button><button class='f-btn' id='fHist'>Hit History</button><div class='log-pane' id='fLog'></div>");document.getElementById("fStatus").onclick=function(){runApi({command:'status',text:'/mystatus'},{logId:'fLog'});};document.getElementById("fHist").onclick=function(){runApi({command:'history',text:'history'},{logId:'fLog'});};return;}
+if(cmd==="/proxy"){
+openModal("Proxy Manager","<textarea id='fProxies' class='f-input' style='min-height:120px' placeholder='host:port:user:pass&#10;host:port:user:pass'></textarea><button class='f-btn' id='fAddProxy'>Add Proxy</button><button class='f-btn' id='fCheckProxy'>Check Proxy</button><div class='log-pane' id='fLog'></div>");
+document.getElementById("fAddProxy").onclick=async function(){
+var txt=getVal("fProxies"); if(!txt){appendLog("fLog","Enter at least 1 proxy."); return;}
+var lines=txt.split("\n").map(function(x){return x.trim();}).filter(function(x){return x;});
+for(var p=0;p<lines.length;p++){
+await runApi({command:"addproxy",text:"/addproxy "+lines[p]},{logId:"fLog"});
+}
+appendLog("fLog","Proxy add flow completed.");
+};
+document.getElementById("fCheckProxy").onclick=function(){runApi({command:"proxy",text:"/proxy check"},{logId:"fLog"});};
+return;
+}
+if(cmd==="/status"){
+openModal("Status & History","<button class='f-btn' id='fStatus'>Load Premium Status</button><button class='f-btn' id='fHist'>Load Hit History</button><div class='detail-card'><div class='detail-row'><span>🛰 API</span><span id='sApi'>"+WEBAPP_API_BASE+"</span></div><div class='detail-row'><span>👤 User ID</span><span id='sUid'>"+(DISPLAY_UID||'-')+"</span></div><div class='detail-row'><span>🕒 Time</span><span id='sTime'>"+new Date().toLocaleString()+"</span></div></div><div class='log-pane' id='fLog'></div>");
+document.getElementById("fStatus").onclick=function(){runApi({command:'status',text:'/mystatus'},{logId:'fLog'});};
+document.getElementById("fHist").onclick=function(){runApi({command:'history',text:'history'},{logId:'fLog'});};
+return;
+}
 if(cmd==="/redeem"){
 openModal("Redeem Code","<input id='fCode' class='f-input' placeholder='CODE'><button class='f-btn' id='fRun'>Redeem</button>");
 document.getElementById("fRun").onclick=function(){runApi({command:"redeem",text:"/redeem "+getVal("fCode")});};
 return;
 }
 if(cmd==="/gen"){
-openModal("Card Generator",'<input id="fBin" class="f-input" placeholder="BIN (e.g. 474472)"><input id="fN" class="f-input" placeholder="Count (default 10)"><button class="f-btn" id="fRun">Generate</button>');
-document.getElementById("fRun").onclick=function(){setResult(genLuhn(getVal("fBin"),getVal("fN")));closeModal();};
+openModal("Card Generator","<input id='fBin' class='f-input' placeholder='BIN (e.g. 474472)'><input id='fN' class='f-input' placeholder='Count (default 10)'><input id='fDate' class='f-input' placeholder='MM|YY (optional, must be future)'><input id='fCvv' class='f-input' placeholder='CVV (optional)'><button class='f-btn' id='fRun'>Generate</button><div class='log-pane' id='fLog'></div>");
+document.getElementById("fRun").onclick=function(){
+var cards=genLuhn(getVal("fBin"),getVal("fN")).split("\n");
+var d=getVal("fDate"), cv=getVal("fCvv");
+if(d){cards=cards.map(function(c){var p=c.split("|"); if(p.length>=4){p[1]=d.split("|")[0]||p[1]; p[2]=d.split("|")[1]||p[2];} return p.join("|");});}
+if(cv){cards=cards.map(function(c){var p=c.split("|"); if(p.length>=4){p[3]=cv;} return p.join("|");});}
+// ensure not expired
+var now=new Date(); var m=now.getMonth()+1; var y=now.getFullYear()%100;
+cards=cards.map(function(c){var p=c.split("|"); var mm=parseInt(p[1],10)||m; var yy=parseInt(p[2],10)||y; if(yy<y||(yy===y&&mm<m)){yy=y+1; mm=Math.max(mm,m);} p[1]=String(mm).padStart(2,'0'); p[2]=String(yy).padStart(2,'0'); return p.join("|");});
+setResult(cards.join("\n")); appendLog("fLog","Generated "+cards.length+" cards (non-expired).");
+};
 return;
 }
 });})(cards[i]);
