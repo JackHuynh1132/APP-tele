@@ -79,11 +79,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .result-box pre{white-space:pre-wrap;word-break:break-word;font-size:11px;color:#d8d8e6;line-height:1.45}
 .modal{display:none;position:fixed;z-index:9998;inset:0;background:rgba(0,0,0,0.6);align-items:flex-end}
 .modal.show{display:flex}
-.modal-card{width:100%;max-height:82vh;overflow:auto;background:rgba(12,12,25,0.95);border-top-left-radius:18px;border-top-right-radius:18px;border:1px solid rgba(124,92,252,0.35);padding:14px}
+.modal-card{width:100%;max-height:90vh;overflow:auto;background:rgba(8,10,18,0.96);border-top-left-radius:18px;border-top-right-radius:18px;border:1px solid rgba(124,92,252,0.35);padding:14px}
 .modal-title{font-size:13px;font-weight:700;letter-spacing:1px;color:#c9b8ff;margin-bottom:10px}
 .f-input{width:100%;margin-bottom:8px;background:rgba(8,8,18,0.85);border:1px solid rgba(124,92,252,0.3);border-radius:10px;color:#fff;padding:9px;font-size:12px}
 .f-btn{width:100%;margin-top:6px;padding:10px;border:0;border-radius:10px;color:#fff;font-weight:700;background:linear-gradient(135deg,#5c3cdc,#7c5cfc)}
 .f-cancel{width:100%;margin-top:6px;padding:10px;border:1px solid rgba(255,255,255,0.2);border-radius:10px;background:transparent;color:#ddd}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.seg button{padding:9px;border-radius:10px;border:1px solid rgba(124,92,252,0.25);background:rgba(18,20,33,0.9);color:#d9d9f6}
+.seg button.active{background:linear-gradient(135deg,#3a2a8e,#6b4dff);color:#fff}
+.status-line{font-size:11px;color:#a6a9d5;margin:6px 0 8px}
+.detail-card{border:1px solid rgba(71,122,255,0.35);background:rgba(12,16,30,0.7);padding:10px;border-radius:12px;margin:8px 0}
+.detail-row{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:#d4d8ff;padding:2px 0}
+.log-pane{max-height:170px;overflow:auto;background:rgba(6,8,14,0.9);border:1px solid rgba(124,92,252,0.25);padding:8px;border-radius:10px}
+.log-line{font-size:11px;color:#cfd3f5;padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.stop-btn{width:100%;padding:10px;border:0;border-radius:10px;background:#d81e2f;color:#fff;font-weight:700;margin:8px 0}
+.result-list{margin-top:8px}
+.result-item{border:1px solid rgba(255,80,110,0.25);background:rgba(24,10,16,0.75);padding:8px;border-radius:10px;margin-bottom:6px;font-size:12px;color:#ffd4dc}
 #err{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a14;z-index:9999;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
 #err.show{display:flex}
 #err .err-icon{font-size:48px;margin-bottom:16px}
@@ -212,6 +223,12 @@ function closeModal(){featureModal.className="modal";}
 if(modalCloseBtn){modalCloseBtn.addEventListener("click",closeModal);}
 function openModal(title,html){modalTitle.textContent=title;modalBody.innerHTML=html;featureModal.className="modal show";}
 function getVal(id){var el=document.getElementById(id);return el?el.value.trim():"";}
+function appendLog(id,msg){
+var box=document.getElementById(id); if(!box)return;
+var div=document.createElement("div"); div.className="log-line"; div.textContent=msg;
+box.prepend(div);
+}
+function setText(id,val){var el=document.getElementById(id); if(el)el.textContent=val||"";}
 function genLuhn(bin,count){
 var out=[];var n=Math.max(1,Math.min(50,parseInt(count||"10",10)||10));
 for(var i=0;i<n;i++){
@@ -227,7 +244,8 @@ out.push(cc+"|"+mm+"|"+yy+"|"+cvv);
 }
 return out.join("\n");
 }
-async function runApi(payload){
+var ACTIVE_FETCH = null;
+async function runApi(payload, ui){
 var initData = (tg && tg.initData) ? tg.initData : "";
 if(!initData){
 try{
@@ -241,44 +259,74 @@ var uid = (fallbackUser && fallbackUser.id) ? parseInt(fallbackUser.id,10) : QUE
 var uname = (fallbackUser && (fallbackUser.first_name || fallbackUser.username)) ? (fallbackUser.first_name || fallbackUser.username) : "WebAppUser";
 setResult("Processing request...");
 try{
-var r=await fetch(WEBAPP_API_BASE+"/webapp/run",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+if(ui&&ui.stateId){setText(ui.stateId,"Running...");}
+if(ui&&ui.logId){appendLog(ui.logId,"Starting request...");}
+var ctrl = new AbortController();
+ACTIVE_FETCH = ctrl;
+var r=await fetch(WEBAPP_API_BASE+"/webapp/run",{method:"POST",headers:{"Content-Type":"application/json"},signal:ctrl.signal,body:JSON.stringify({
 command:payload.command,text:payload.text,user_id:uid,user_name:uname,chat_id:uid,init_data:initData
 })});
 var data=await r.json();
 if(!data||!data.ok){setResult("Error: "+((data&&data.error)||"run failed"));return;}
 var out=(data.messages&&data.messages.length)?data.messages.join("\n\n"):"No messages returned.";
 setResult(out);
+if(ui&&ui.stateId){setText(ui.stateId,"Completed");}
+if(ui&&ui.logId){
+appendLog(ui.logId,"Request completed.");
+var lines = out.split("\n");
+for(var i=0;i<lines.length;i++){
+if(lines[i].trim()){appendLog(ui.logId,lines[i].replace(/<[^>]*>/g,""));}
+}
+}
+if(ui&&ui.resultId){
+var box=document.getElementById(ui.resultId); if(box){
+box.innerHTML="";
+var items=out.split("\n").filter(function(x){return /CHARGED|DECLINED|3DS|APPROVED|ERROR/i.test(x);});
+for(var k=0;k<items.length;k++){var it=document.createElement("div");it.className="result-item";it.textContent=items[k].replace(/<[^>]*>/g,"");box.appendChild(it);}
+}
+}
 }catch(e){setResult("Network/API error: "+(e&&e.message?e.message:"unknown"));}
+finally{ACTIVE_FETCH=null;}
 }
 var cards=document.querySelectorAll(".tc[data-cmd]");
 for(var i=0;i<cards.length;i++){
 (function(card){card.addEventListener("click",function(){
 var cmd=card.getAttribute("data-cmd")||"";
 if(cmd==="/co"){
-openModal("Stripe Charge",'<input id="fUrl" class="f-input" placeholder="Checkout URL"><input id="fCard" class="f-input" placeholder="Card (cc|mm|yy|cvv)"><button class="f-btn" id="fRun">Run</button>');
-document.getElementById("fRun").onclick=function(){runApi({command:"url",text:"/url "+getVal("fUrl")+" "+getVal("fCard")});closeModal();};
+openModal("Stripe Charge","<div class='seg'><button id='sUrl' class='active'>URL</button><button id='sUrl2'>URL2</button></div><input id='fUrl' class='f-input' placeholder='Checkout URL'><input id='fCard' class='f-input' placeholder='Card (cc|mm|yy|cvv)'><div class='status-line' id='st'>Idle</div><div class='detail-card'><div class='detail-row'><span>Checkout Details</span><span id='srv'>url</span></div></div><button class='f-btn' id='fRun'>Start</button><button class='stop-btn' id='fStop'>Stop</button><div class='log-pane' id='fLog'></div><div class='result-list' id='fRes'></div>");
+var mode="url";
+document.getElementById("sUrl").onclick=function(){mode="url";this.className="active";document.getElementById("sUrl2").className="";setText("srv","url");};
+document.getElementById("sUrl2").onclick=function(){mode="url2";this.className="active";document.getElementById("sUrl").className="";setText("srv","url2");};
+document.getElementById("fRun").onclick=function(){runApi({command:mode,text:"/"+mode+" "+getVal("fUrl")+" "+getVal("fCard")},{stateId:"st",logId:"fLog",resultId:"fRes"});};
+document.getElementById("fStop").onclick=function(){if(ACTIVE_FETCH){ACTIVE_FETCH.abort();appendLog("fLog","Stopped by user.");setText("st","Stopped");}};
 return;
 }
 if(cmd==="/bin"){
-openModal("Stripe BIN",'<input id="fUrl" class="f-input" placeholder="Checkout URL"><input id="fBin" class="f-input" placeholder="BIN (e.g. 474472)"><button class="f-btn" id="fRun">Run</button>');
-document.getElementById("fRun").onclick=function(){runApi({command:"co",text:"/co "+getVal("fUrl")+" "+getVal("fBin")});closeModal();};
+openModal("BIN Charge","<div class='seg'><button id='sCo' class='active'>CO</button><button id='sCo2'>CO2</button></div><input id='fUrl' class='f-input' placeholder='Checkout URL'><input id='fBin' class='f-input' placeholder='BIN (e.g. 474472)'><div class='status-line' id='st'>Idle</div><div class='detail-card'><div class='detail-row'><span>Checkout Details</span><span id='srv'>co</span></div></div><button class='f-btn' id='fRun'>Start</button><button class='stop-btn' id='fStop'>Stop</button><div class='log-pane' id='fLog'></div><div class='result-list' id='fRes'></div>");
+var mode="co";
+document.getElementById("sCo").onclick=function(){mode="co";this.className="active";document.getElementById("sCo2").className="";setText("srv","co");};
+document.getElementById("sCo2").onclick=function(){mode="co2";this.className="active";document.getElementById("sCo").className="";setText("srv","co2");};
+document.getElementById("fRun").onclick=function(){runApi({command:mode,text:"/"+mode+" "+getVal("fUrl")+" "+getVal("fBin")},{stateId:"st",logId:"fLog",resultId:"fRes"});};
+document.getElementById("fStop").onclick=function(){if(ACTIVE_FETCH){ACTIVE_FETCH.abort();appendLog("fLog","Stopped by user.");setText("st","Stopped");}};
 return;
 }
 if(cmd==="/ay"){
-openModal("Adyen Charge",'<input id="fUrl" class="f-input" placeholder="Adyen URL"><input id="fCard" class="f-input" placeholder="Card (cc|mm|yy|cvv)"><button class="f-btn" id="fRun">Run</button>');
-document.getElementById("fRun").onclick=function(){runApi({command:"ay",text:"/ay "+getVal("fUrl")+" "+getVal("fCard")});closeModal();};
+openModal("Adyen Charge","<input id='fUrl' class='f-input' placeholder='Adyen URL'><input id='fCard' class='f-input' placeholder='Card (cc|mm|yy|cvv)'><div class='status-line' id='st'>Idle</div><button class='f-btn' id='fRun'>Start</button><button class='stop-btn' id='fStop'>Stop</button><div class='log-pane' id='fLog'></div><div class='result-list' id='fRes'></div>");
+document.getElementById("fRun").onclick=function(){runApi({command:"ay",text:"/ay "+getVal("fUrl")+" "+getVal("fCard")},{stateId:"st",logId:"fLog",resultId:"fRes"});};
+document.getElementById("fStop").onclick=function(){if(ACTIVE_FETCH){ACTIVE_FETCH.abort();appendLog("fLog","Stopped by user.");setText("st","Stopped");}};
 return;
 }
 if(cmd==="/aybin"){
-openModal("Adyen BIN",'<input id="fUrl" class="f-input" placeholder="Adyen URL"><input id="fBin" class="f-input" placeholder="BIN"><button class="f-btn" id="fRun">Run</button>');
-document.getElementById("fRun").onclick=function(){runApi({command:"ay",text:"/ay "+getVal("fUrl")+" "+getVal("fBin")});closeModal();};
+openModal("Adyen BIN","<input id='fUrl' class='f-input' placeholder='Adyen URL'><input id='fBin' class='f-input' placeholder='BIN'><div class='status-line' id='st'>Idle</div><button class='f-btn' id='fRun'>Start</button><button class='stop-btn' id='fStop'>Stop</button><div class='log-pane' id='fLog'></div><div class='result-list' id='fRes'></div>");
+document.getElementById("fRun").onclick=function(){runApi({command:"ay",text:"/ay "+getVal("fUrl")+" "+getVal("fBin")},{stateId:"st",logId:"fLog",resultId:"fRes"});};
+document.getElementById("fStop").onclick=function(){if(ACTIVE_FETCH){ACTIVE_FETCH.abort();appendLog("fLog","Stopped by user.");setText("st","Stopped");}};
 return;
 }
-if(cmd==="/proxy"){runApi({command:"proxy",text:"/proxy check"});return;}
-if(cmd==="/status"){runApi({command:"status",text:"/mystatus"});return;}
+if(cmd==="/proxy"){runApi({command:"proxy",text:"/proxy check"},{logId:null});return;}
+if(cmd==="/status"){runApi({command:"status",text:"/mystatus"},{logId:null});return;}
 if(cmd==="/redeem"){
-openModal("Redeem Code",'<input id="fCode" class="f-input" placeholder="CODE"><button class="f-btn" id="fRun">Redeem</button>');
-document.getElementById("fRun").onclick=function(){runApi({command:"redeem",text:"/redeem "+getVal("fCode")});closeModal();};
+openModal("Redeem Code","<input id='fCode' class='f-input' placeholder='CODE'><button class='f-btn' id='fRun'>Redeem</button>");
+document.getElementById("fRun").onclick=function(){runApi({command:"redeem",text:"/redeem "+getVal("fCode")});};
 return;
 }
 if(cmd==="/gen"){
