@@ -192,7 +192,8 @@ var featureModal=document.getElementById("featureModal");
 var modalTitle=document.getElementById("modalTitle");
 var modalBody=document.getElementById("modalBody");
 var modalCloseBtn=document.getElementById("modalCloseBtn");
-var WEBAPP_API_BASE=(window.WEBAPP_API_BASE||"https://mort-royal-production.up.railway.app").replace(/\/$/,"");
+var qsInit = new URLSearchParams(window.location.search);
+var WEBAPP_API_BASE=((qsInit.get("api")||"").trim()||window.WEBAPP_API_BASE||"").replace(/\/$/,"");
 
 function setResult(text){
 if(resultText){resultText.textContent=text||"";}
