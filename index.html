@@ -369,7 +369,6 @@ if(ACTIVE_STREAM){ACTIVE_STREAM.close(); ACTIVE_STREAM=null;}
 }catch(err){}
 };
 ACTIVE_STREAM.onerror = function(){
-if(ui&&ui.logId){appendLog(ui.logId,"Stream disconnected.");}
 setRunUI(ui,false);
 ACTIVE_RUN=false;
 ACTIVE_JOB_ID=null;
@@ -415,10 +414,23 @@ if(ACTIVE_FETCH){ACTIVE_FETCH.abort();appendLog("fLog","Stopped by user.");setTe
 return;
 }
 if(cmd==="/bin"){
-openModal("BIN Charge","<div class='seg'><button id='sCo' class='active'>Server 1</button><button id='sCo2'>Server 2</button></div><input id='fUrl' class='f-input' placeholder='🔗 Checkout URL'><input id='fBin' class='f-input' placeholder='🎯 BIN (e.g. 474472)'><div class='detail-card'><div class='detail-row'><span>📣 Send Group Log</span><span><input type='checkbox' id='fNotify' checked></span></div><div class='detail-row'><span>🪪 Show Card In Group</span><span><input type='checkbox' id='fShow'></span></div></div><div class='status-line' id='st'>Idle</div><div class='runner-head'><div class='runner-stat'><b id='rs_hit'>0</b><span>HIT</span></div><div class='runner-stat'><b id='rs_3ds'>0</b><span>3DS</span></div><div class='runner-stat'><b id='rs_dec'>0</b><span>DECLINED</span></div></div><div class='detail-card'><div class='detail-row'><span>🛍 Merchant</span><span id='dMerchant'>-</span></div><div class='detail-row'><span>💰 Amount</span><span id='dAmount'>-</span></div><div class='detail-row'><span>🎯 Attempts</span><span id='dAttempts'>-</span></div></div><button class='f-btn' id='fRun'>Start</button><button class='stop-btn' id='fStop'>Stop</button><div class='log-pane' id='fLog'></div><div class='result-list' id='fRes'></div>");
+openModal("BIN Charge","<div class='seg'><button id='sCo' class='active'>Server 1</button><button id='sCo2'>Server 2</button></div><input id='fUrl' class='f-input' placeholder='🔗 Checkout URL'><input id='fBin' class='f-input' placeholder='🎯 BIN (e.g. 474472)'><div class='seg'><button id='fSaveBin'>Save BIN</button><button id='fUseBin'>Use Saved BIN</button></div><div class='detail-card'><div class='detail-row'><span>📣 Send Group Log</span><span><input type='checkbox' id='fNotify' checked></span></div><div class='detail-row'><span>🪪 Show Card In Group</span><span><input type='checkbox' id='fShow'></span></div></div><div class='status-line' id='st'>Idle</div><div class='runner-head'><div class='runner-stat'><b id='rs_hit'>0</b><span>HIT</span></div><div class='runner-stat'><b id='rs_3ds'>0</b><span>3DS</span></div><div class='runner-stat'><b id='rs_dec'>0</b><span>DECLINED</span></div></div><div class='detail-card'><div class='detail-row'><span>🛍 Merchant</span><span id='dMerchant'>-</span></div><div class='detail-row'><span>💰 Amount</span><span id='dAmount'>-</span></div><div class='detail-row'><span>🎯 Attempts</span><span id='dAttempts'>-</span></div></div><button class='f-btn' id='fRun'>Start</button><button class='stop-btn' id='fStop'>Stop</button><div class='log-pane' id='fLog'></div><div class='result-list' id='fRes'></div>");
 var mode="co";
 document.getElementById("sCo").onclick=function(){mode="co";this.className="active";document.getElementById("sCo2").className="";};
 document.getElementById("sCo2").onclick=function(){mode="co2";this.className="active";document.getElementById("sCo").className="";};
+document.getElementById("fSaveBin").onclick=function(){
+var b=getVal("fBin"); if(!b){appendLog("fLog","Enter BIN first.");return;}
+var arr=[]; try{arr=JSON.parse(localStorage.getItem("saved_bins")||"[]");}catch(e){}
+if(arr.indexOf(b)===-1){arr.unshift(b); arr=arr.slice(0,20);}
+localStorage.setItem("saved_bins",JSON.stringify(arr));
+appendLog("fLog","Saved BIN: "+b);
+};
+document.getElementById("fUseBin").onclick=function(){
+var arr=[]; try{arr=JSON.parse(localStorage.getItem("saved_bins")||"[]");}catch(e){}
+if(!arr.length){appendLog("fLog","No saved BIN.");return;}
+document.getElementById("fBin").value=arr[0];
+appendLog("fLog","Loaded BIN: "+arr[0]);
+};
 document.getElementById("fRun").onclick=function(){runApi({command:mode,text:"/"+mode+" "+getVal("fUrl")+" "+getVal("fBin"),notify_group:document.getElementById("fNotify").checked,show_card:document.getElementById("fShow").checked},{stateId:"st",logId:"fLog",resultId:"fRes",startBtnId:"fRun",statsId:"rs",realtime:true});};
 document.getElementById("fStop").onclick=async function(){
 if(ACTIVE_JOB_ID){
@@ -473,7 +485,7 @@ document.getElementById("fCheckProxy").onclick=function(){runApi({command:"proxy
 return;
 }
 if(cmd==="/status"){
-openModal("Status & History","<button class='f-btn' id='fStatus'>Load Premium Status</button><button class='f-btn' id='fHist'>Load Hit History</button><div class='detail-card'><div class='detail-row'><span>🛰 API</span><span id='sApi'>"+WEBAPP_API_BASE+"</span></div><div class='detail-row'><span>👤 User ID</span><span id='sUid'>"+(DISPLAY_UID||'-')+"</span></div><div class='detail-row'><span>🕒 Time</span><span id='sTime'>"+new Date().toLocaleString()+"</span></div></div><div class='log-pane' id='fLog'></div>");
+openModal("Status & History","<button class='f-btn' id='fStatus'>Load Premium Status</button><button class='f-btn' id='fHist'>Load Hit History</button><div class='detail-card'><div class='detail-row'><span>👤 User ID</span><span id='sUid'>"+(DISPLAY_UID||'-')+"</span></div><div class='detail-row'><span>🕒 Time</span><span id='sTime'>"+new Date().toLocaleString()+"</span></div></div><div class='log-pane' id='fLog'></div>");
 document.getElementById("fStatus").onclick=function(){runApi({command:'status',text:'/mystatus'},{logId:'fLog'});};
 document.getElementById("fHist").onclick=function(){runApi({command:'history',text:'history'},{logId:'fLog'});};
 return;
