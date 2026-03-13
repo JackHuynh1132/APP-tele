@@ -95,6 +95,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .stop-btn{width:100%;padding:13px;border:0;border-radius:12px;background:#d81e2f;color:#fff;font-weight:800;font-size:20px;margin:10px 0}
 .result-list{margin-top:8px}
 .result-item{border:1px solid rgba(255,80,110,0.25);background:rgba(24,10,16,0.75);padding:8px;border-radius:10px;margin-bottom:6px;font-size:12px;color:#ffd4dc}
+.result-item.hit{border-color:rgba(52,211,153,0.4);background:rgba(7,35,25,0.8);color:#b8ffe2}
+.result-item.threeds{border-color:rgba(250,204,21,0.45);background:rgba(40,33,8,0.85);color:#ffe8a3}
+.runner-head{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:8px 0}
+.runner-stat{background:rgba(12,16,30,0.75);border:1px solid rgba(124,92,252,0.28);border-radius:10px;padding:8px;text-align:center}
+.runner-stat b{font-size:18px;color:#fff}
+.runner-stat span{display:block;font-size:10px;color:#9da3d8}
 #err{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a14;z-index:9999;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
 #err.show{display:flex}
 #err .err-icon{font-size:48px;margin-bottom:16px}
@@ -253,6 +259,26 @@ setText("dMerchant",extractDetail(lines,["Merchant"]));
 setText("dAmount",extractDetail(lines,["Amount","Price"]));
 setText("dAttempts",extractDetail(lines,["Attempts","Card 1/","Cards"]));
 }
+function classifyLine(line){
+var t=(line||"").toUpperCase();
+if(/CHARGED|APPROVED|BIN HIT/.test(t)) return "hit";
+if(/3DS|THREEDS|REDIRECTSHOPPER|CHALLENGESHOPPER/.test(t)) return "threeds";
+if(/DECLINED|GENERIC_DECLINE|DO_NOT_HONOR|INCORRECT_CVC/.test(t)) return "declined";
+return "";
+}
+function updateRunnerStats(lines, statsId){
+if(!statsId) return;
+var hits=0, d3=0, dec=0;
+for(var i=0;i<lines.length;i++){
+var c=classifyLine(lines[i]);
+if(c==="hit") hits++;
+else if(c==="threeds") d3++;
+else if(c==="declined") dec++;
+}
+setText(statsId+"_hit", String(hits));
+setText(statsId+"_3ds", String(d3));
+setText(statsId+"_dec", String(dec));
+}
 function genLuhn(bin,count){
 var out=[];var n=Math.max(1,Math.min(50,parseInt(count||"10",10)||10));
 for(var i=0;i<n;i++){
@@ -269,7 +295,13 @@ out.push(cc+"|"+mm+"|"+yy+"|"+cvv);
 return out.join("\n");
 }
 var ACTIVE_FETCH = null;
+var ACTIVE_RUN = false;
 async function runApi(payload, ui){
+if(ACTIVE_RUN){
+if(ui&&ui.logId){appendLog(ui.logId,"A request is already running. Stop it first.");}
+setResult("Another request is running. Stop first.");
+return;
+}
 var initData = (tg && tg.initData) ? tg.initData : "";
 if(!initData){
 try{
@@ -283,7 +315,9 @@ var uid = (fallbackUser && fallbackUser.id) ? parseInt(fallbackUser.id,10) : QUE
 var uname = (fallbackUser && (fallbackUser.first_name || fallbackUser.username)) ? (fallbackUser.first_name || fallbackUser.username) : "WebAppUser";
 setResult("Processing request...");
 try{
+ACTIVE_RUN = true;
 if(ui&&ui.stateId){setText(ui.stateId,"Running...");}
+if(ui&&ui.startBtnId){var sb=document.getElementById(ui.startBtnId); if(sb){sb.disabled=true; sb.style.opacity="0.5"; sb.textContent="Running...";}}
 if(ui&&ui.logId){appendLog(ui.logId,"Starting request...");}
 var ctrl = new AbortController();
 ACTIVE_FETCH = ctrl;
@@ -308,31 +342,44 @@ if(ui&&ui.resultId){
 var box=document.getElementById(ui.resultId); if(box){
 box.innerHTML="";
 var items=out.split("\n").filter(function(x){return /CHARGED|DECLINED|3DS|APPROVED|ERROR/i.test(x);});
-for(var k=0;k<items.length;k++){var it=document.createElement("div");it.className="result-item";it.textContent=items[k].replace(/<[^>]*>/g,"");box.appendChild(it);}
+for(var k=0;k<items.length;k++){
+var clean=items[k].replace(/<[^>]*>/g,"");
+var cls=classifyLine(clean);
+var it=document.createElement("div");
+it.className="result-item"+(cls?(" "+cls):"");
+it.textContent=clean;
+box.appendChild(it);
+}
+updateRunnerStats(items, ui.statsId||"");
 }
 }
 }catch(e){setResult("Network/API error: "+(e&&e.message?e.message:"unknown"));}
-finally{ACTIVE_FETCH=null;}
+finally{
+ACTIVE_FETCH=null;
+ACTIVE_RUN=false;
+if(ui&&ui.stateId){setText(ui.stateId,"Idle");}
+if(ui&&ui.startBtnId){var rb=document.getElementById(ui.startBtnId); if(rb){rb.disabled=false; rb.style.opacity="1"; rb.textContent="Start";}}
+}
 }
 var cards=document.querySelectorAll(".tc[data-cmd]");
 for(var i=0;i<cards.length;i++){
 (function(card){card.addEventListener("click",function(){
 var cmd=card.getAttribute("data-cmd")||"";
 if(cmd==="/co"){
-openModal("Stripe Charge","<div class='seg'><button id='sUrl' class='active'>Server 1</button><button id='sUrl2'>Server 2</button></div><input id='fUrl' class='f-input' placeholder='🔗 Checkout URL'><input id='fCard' class='f-input' placeholder='💳 Card (cc|mm|yy|cvv)'><div class='detail-card'><div class='detail-row'><span>📣 Send Group Log</span><span><input type='checkbox' id='fNotify' checked></span></div><div class='detail-row'><span>🪪 Show Card In Group</span><span><input type='checkbox' id='fShow'></span></div></div><div class='status-line' id='st'>Idle</div><div class='detail-card'><div class='detail-row'><span>🛍 Merchant</span><span id='dMerchant'>-</span></div><div class='detail-row'><span>💰 Amount</span><span id='dAmount'>-</span></div><div class='detail-row'><span>🎯 Attempts</span><span id='dAttempts'>-</span></div></div><button class='f-btn' id='fRun'>Start</button><button class='stop-btn' id='fStop'>Stop</button><div class='log-pane' id='fLog'></div><div class='result-list' id='fRes'></div>");
+openModal("Stripe Charge","<div class='seg'><button id='sUrl' class='active'>Server 1</button><button id='sUrl2'>Server 2</button></div><input id='fUrl' class='f-input' placeholder='🔗 Checkout URL'><input id='fCard' class='f-input' placeholder='💳 Card (cc|mm|yy|cvv)'><div class='detail-card'><div class='detail-row'><span>📣 Send Group Log</span><span><input type='checkbox' id='fNotify' checked></span></div><div class='detail-row'><span>🪪 Show Card In Group</span><span><input type='checkbox' id='fShow'></span></div></div><div class='status-line' id='st'>Idle</div><div class='runner-head'><div class='runner-stat'><b id='rs_hit'>0</b><span>HIT</span></div><div class='runner-stat'><b id='rs_3ds'>0</b><span>3DS</span></div><div class='runner-stat'><b id='rs_dec'>0</b><span>DECLINED</span></div></div><div class='detail-card'><div class='detail-row'><span>🛍 Merchant</span><span id='dMerchant'>-</span></div><div class='detail-row'><span>💰 Amount</span><span id='dAmount'>-</span></div><div class='detail-row'><span>🎯 Attempts</span><span id='dAttempts'>-</span></div></div><button class='f-btn' id='fRun'>Start</button><button class='stop-btn' id='fStop'>Stop</button><div class='log-pane' id='fLog'></div><div class='result-list' id='fRes'></div>");
 var mode="url";
 document.getElementById("sUrl").onclick=function(){mode="url";this.className="active";document.getElementById("sUrl2").className="";};
 document.getElementById("sUrl2").onclick=function(){mode="url2";this.className="active";document.getElementById("sUrl").className="";};
-document.getElementById("fRun").onclick=function(){runApi({command:mode,text:"/"+mode+" "+getVal("fUrl")+" "+getVal("fCard"),notify_group:document.getElementById("fNotify").checked,show_card:document.getElementById("fShow").checked},{stateId:"st",logId:"fLog",resultId:"fRes"});};
+document.getElementById("fRun").onclick=function(){runApi({command:mode,text:"/"+mode+" "+getVal("fUrl")+" "+getVal("fCard"),notify_group:document.getElementById("fNotify").checked,show_card:document.getElementById("fShow").checked},{stateId:"st",logId:"fLog",resultId:"fRes",startBtnId:"fRun",statsId:"rs"});};
 document.getElementById("fStop").onclick=function(){if(ACTIVE_FETCH){ACTIVE_FETCH.abort();appendLog("fLog","Stopped by user.");setText("st","Stopped");}};
 return;
 }
 if(cmd==="/bin"){
-openModal("BIN Charge","<div class='seg'><button id='sCo' class='active'>Server 1</button><button id='sCo2'>Server 2</button></div><input id='fUrl' class='f-input' placeholder='🔗 Checkout URL'><input id='fBin' class='f-input' placeholder='🎯 BIN (e.g. 474472)'><div class='detail-card'><div class='detail-row'><span>📣 Send Group Log</span><span><input type='checkbox' id='fNotify' checked></span></div><div class='detail-row'><span>🪪 Show Card In Group</span><span><input type='checkbox' id='fShow'></span></div></div><div class='status-line' id='st'>Idle</div><div class='detail-card'><div class='detail-row'><span>🛍 Merchant</span><span id='dMerchant'>-</span></div><div class='detail-row'><span>💰 Amount</span><span id='dAmount'>-</span></div><div class='detail-row'><span>🎯 Attempts</span><span id='dAttempts'>-</span></div></div><button class='f-btn' id='fRun'>Start</button><button class='stop-btn' id='fStop'>Stop</button><div class='log-pane' id='fLog'></div><div class='result-list' id='fRes'></div>");
+openModal("BIN Charge","<div class='seg'><button id='sCo' class='active'>Server 1</button><button id='sCo2'>Server 2</button></div><input id='fUrl' class='f-input' placeholder='🔗 Checkout URL'><input id='fBin' class='f-input' placeholder='🎯 BIN (e.g. 474472)'><div class='detail-card'><div class='detail-row'><span>📣 Send Group Log</span><span><input type='checkbox' id='fNotify' checked></span></div><div class='detail-row'><span>🪪 Show Card In Group</span><span><input type='checkbox' id='fShow'></span></div></div><div class='status-line' id='st'>Idle</div><div class='runner-head'><div class='runner-stat'><b id='rs_hit'>0</b><span>HIT</span></div><div class='runner-stat'><b id='rs_3ds'>0</b><span>3DS</span></div><div class='runner-stat'><b id='rs_dec'>0</b><span>DECLINED</span></div></div><div class='detail-card'><div class='detail-row'><span>🛍 Merchant</span><span id='dMerchant'>-</span></div><div class='detail-row'><span>💰 Amount</span><span id='dAmount'>-</span></div><div class='detail-row'><span>🎯 Attempts</span><span id='dAttempts'>-</span></div></div><button class='f-btn' id='fRun'>Start</button><button class='stop-btn' id='fStop'>Stop</button><div class='log-pane' id='fLog'></div><div class='result-list' id='fRes'></div>");
 var mode="co";
 document.getElementById("sCo").onclick=function(){mode="co";this.className="active";document.getElementById("sCo2").className="";};
 document.getElementById("sCo2").onclick=function(){mode="co2";this.className="active";document.getElementById("sCo").className="";};
-document.getElementById("fRun").onclick=function(){runApi({command:mode,text:"/"+mode+" "+getVal("fUrl")+" "+getVal("fBin"),notify_group:document.getElementById("fNotify").checked,show_card:document.getElementById("fShow").checked},{stateId:"st",logId:"fLog",resultId:"fRes"});};
+document.getElementById("fRun").onclick=function(){runApi({command:mode,text:"/"+mode+" "+getVal("fUrl")+" "+getVal("fBin"),notify_group:document.getElementById("fNotify").checked,show_card:document.getElementById("fShow").checked},{stateId:"st",logId:"fLog",resultId:"fRes",startBtnId:"fRun",statsId:"rs"});};
 document.getElementById("fStop").onclick=function(){if(ACTIVE_FETCH){ACTIVE_FETCH.abort();appendLog("fLog","Stopped by user.");setText("st","Stopped");}};
 return;
 }
