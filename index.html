@@ -382,21 +382,30 @@ return;
 }
 ACTIVE_JOB_ID = sd.job_id;
 if(ui&&ui.logId){appendLog(ui.logId,"Job "+ACTIVE_JOB_ID+" started.");}
-ACTIVE_STREAM = new EventSource(WEBAPP_API_BASE+"/webapp/stream/"+ACTIVE_JOB_ID);
 var agg=[];
 var firstLogAt = 0;
 var streamOpen = false;
+var lastSeq = 0;
+var reconnectAttempts = 0;
+var MAX_RECONNECT = 8;
+var streamDone = false;
+function connectStream(){
+if(streamDone) return;
+var streamUrl = WEBAPP_API_BASE+"/webapp/stream/"+ACTIVE_JOB_ID;
+ACTIVE_STREAM = new EventSource(streamUrl);
 waitTicker = setInterval(function(){
-if(!ACTIVE_RUN){clearInterval(waitTicker); waitTicker=null; return;}
+if(!ACTIVE_RUN||streamDone){clearInterval(waitTicker); waitTicker=null; return;}
 if(ui&&ui.logId){appendLog(ui.logId, firstLogAt ? "Receiving logs..." : "Waiting for realtime logs...");}
-}, 2500);
+}, 4000);
 ACTIVE_STREAM.onopen = function(){
 streamOpen = true;
+reconnectAttempts = 0;
 if(ui&&ui.logId){appendLog(ui.logId,"Realtime stream connected.");}
 };
 ACTIVE_STREAM.onmessage = function(ev){
 try{
 var e = JSON.parse(ev.data||"{}");
+if(e._seq){lastSeq = e._seq;}
 if(e.type==="log"){
 var line = cleanOutput(String(e.line||""));
 if(line){
@@ -414,6 +423,7 @@ updateRunnerStats(agg, ui.statsId||"");
 }
 }
 if(e.type==="done"){
+streamDone = true;
 var res=e.result||{};
 var outRaw=(res.messages&&res.messages.length)?res.messages.join("\n\n"):agg.join("\n");
 setResult(cleanOutput(outRaw)||"Done.");
@@ -426,16 +436,23 @@ if(ACTIVE_STREAM){ACTIVE_STREAM.close(); ACTIVE_STREAM=null;}
 }catch(err){}
 };
 ACTIVE_STREAM.onerror = function(ev){
+if(streamDone) return;
+if(ACTIVE_STREAM){ACTIVE_STREAM.close(); ACTIVE_STREAM=null;}
 if(waitTicker){clearInterval(waitTicker); waitTicker=null;}
-if(ui&&ui.logId){
-appendLog(ui.logId, streamOpen ? "Stream disconnected." : "Stream connect failed.");
-if(ev && ev.type){appendLog(ui.logId,"Event: "+ev.type);}
-}
+reconnectAttempts++;
+if(reconnectAttempts <= MAX_RECONNECT){
+var delay = Math.min(1000 * Math.pow(1.5, reconnectAttempts-1), 8000);
+if(ui&&ui.logId){appendLog(ui.logId,"Stream lost. Reconnecting in "+Math.round(delay/1000)+"s... ("+reconnectAttempts+"/"+MAX_RECONNECT+")");}
+setTimeout(connectStream, delay);
+} else {
+if(ui&&ui.logId){appendLog(ui.logId,"Stream disconnected after "+MAX_RECONNECT+" retries.");}
 setRunUI(ui,false);
 ACTIVE_RUN=false;
 ACTIVE_JOB_ID=null;
-if(ACTIVE_STREAM){ACTIVE_STREAM.close(); ACTIVE_STREAM=null;}
+}
 };
+}
+connectStream();
 return;
 }
 var ctrl = new AbortController();
