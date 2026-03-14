@@ -356,9 +356,21 @@ if(ui&&ui.logId){appendLog(ui.logId,"Starting request...");}
 var realtime = !!(ui&&ui.realtime);
 if(realtime){
 if(ui&&ui.logId){appendLog(ui.logId,"POST /webapp/start");}
-var sr = await fetch(WEBAPP_API_BASE+"/webapp/start",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+var startCtrl = new AbortController();
+var startTimeout = setTimeout(function(){try{startCtrl.abort("start-timeout");}catch(e){}}, 12000);
+var sr = null;
+try{
+sr = await fetch(WEBAPP_API_BASE+"/webapp/start",{method:"POST",headers:{"Content-Type":"application/json"},signal:startCtrl.signal,body:JSON.stringify({
 command:payload.command,text:payload.text,user_id:auth.uid,user_name:auth.uname,chat_id:auth.uid,init_data:auth.initData,notify_group:payload.notify_group,show_card:payload.show_card
 })});
+}catch(startErr){
+var startMsg = (startErr&&startErr.name==="AbortError") ? "Start request timed out before job_id was returned." : "Start request failed: "+(startErr&&startErr.message?startErr.message:"network error");
+if(ui&&ui.logId){appendLog(ui.logId,startMsg);}
+setResult(startMsg);
+return;
+}finally{
+clearTimeout(startTimeout);
+}
 if(!sr.ok){
 var t1 = await sr.text().catch(function(){return "";});
 var msg1 = "Start failed HTTP "+sr.status+" "+sr.statusText;
