@@ -67,6 +67,14 @@ color:var(--text);min-height:100vh;min-height:100dvh;overflow-x:hidden}
 .card .uid{font-size:12px;color:rgba(255,255,255,.5);letter-spacing:1px;margin-bottom:20px}
 .dv{width:42px;height:2px;background:linear-gradient(90deg,transparent,rgba(136,160,255,.7),transparent);margin:0 auto 18px}
 .bl{width:100%;padding:15px;background:linear-gradient(135deg,#2f4ad9,#4a6dff 55%,#8ca8ff);color:#fff;border:0;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:1px;position:relative;overflow:hidden;box-shadow:0 14px 34px rgba(63,102,255,.36)}
+.otp-form{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.otp-note{font-size:12px;line-height:1.5;color:#97a0b7;margin-bottom:4px}
+.otp-row{display:grid;grid-template-columns:1fr;gap:10px}
+.otp-actions{display:flex;flex-direction:column;gap:10px}
+.otp-actions .mini-link{font-size:12px;color:#93a7ff;text-decoration:none;text-align:center}
+.otp-status{min-height:18px;font-size:12px;color:#9ca7bf}
+.otp-input{width:100%;padding:14px 16px;border-radius:16px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:#fff;font-size:15px;font-family:inherit}
+.otp-input::placeholder{color:#697388}
 .bl em{position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);animation:sh 2.5s ease-in-out infinite;font-style:normal}
 @keyframes sh{0%{left:-100%}50%{left:100%}100%{left:100%}}
 #dash{display:none;position:relative;min-height:100vh;min-height:100dvh;z-index:1;overflow-y:auto}
@@ -204,7 +212,18 @@ radial-gradient(circle at top center,rgba(63,102,255,.18),transparent 24%);z-ind
 <div class="card">
 <div class="aw"><div class="ar"></div><div class="ai" id="avatar"></div></div>
 <h1>J.HUYNH BOT</h1><div class="uid" id="uid"></div><div class="dv"></div>
+<div class="otp-form">
+<div class="otp-note">Enter your Telegram ID, request an OTP from the bot, then paste the code here to unlock the control room.</div>
+<div class="otp-row">
+<input id="otpUserId" class="otp-input" placeholder="Telegram User ID">
+<input id="otpCode" class="otp-input" placeholder="OTP Code">
+</div>
+<div class="otp-status" id="otpStatus"></div>
+<div class="otp-actions">
+<button class="bl" id="sendOtpBtn">SEND OTP<em></em></button>
 <button class="bl" id="loginBtn">ENTER CONTROL ROOM<em></em></button>
+</div>
+</div>
 </div>
 </div>
 <div id="dash">
@@ -297,6 +316,23 @@ if(!u){return null;}
 return JSON.parse(u);
 }catch(e){return null;}
 }
+var AUTH_STORAGE_KEY="jh_auth_v1";
+function loadStoredAuth(){
+try{
+var raw=localStorage.getItem(AUTH_STORAGE_KEY)||"";
+if(!raw) return null;
+var data=JSON.parse(raw);
+return data&&data.session_token&&data.user?data:null;
+}catch(e){return null;}
+}
+function saveStoredAuth(data){
+try{localStorage.setItem(AUTH_STORAGE_KEY,JSON.stringify(data||{}));}catch(e){}
+}
+function clearStoredAuth(){
+try{localStorage.removeItem(AUTH_STORAGE_KEY);}catch(e){}
+}
+var storedAuth=loadStoredAuth();
+if(!user&&storedAuth&&storedAuth.user){user=storedAuth.user;}
 if(!user){
 try{
 user=parseUserFromInitDataString((tg&&tg.initData)||"");
@@ -321,9 +357,10 @@ bar.style.width=progress+"%";
 pct.textContent=progress+"%";
 if(progress>(msgIdx+1)*20&&msgIdx<msgs.length-1){msgIdx++;statusMsg.textContent=msgs[msgIdx];}
 if(progress>=100){clearInterval(loadTimer);statusMsg.textContent="READY";
-setTimeout(function(){loadDiv.className="out";setTimeout(function(){loadDiv.style.display="none";showLogin();},600);},400);}
+setTimeout(function(){loadDiv.className="out";setTimeout(function(){loadDiv.style.display="none";(storedAuth&&storedAuth.user)?showDash():showLogin();},600);},400);}
 },120);
-function showLogin(){
+function renderUserProfile(profile){
+var p=profile||null;
 var avatarEl=document.getElementById("avatar");
 var uidEl=document.getElementById("uid");
 var heroUidEl=document.getElementById("heroUid");
@@ -331,27 +368,62 @@ var heroAvatarEl=document.getElementById("heroAvatar");
 var heroUserNameEl=document.getElementById("heroUserName");
 var heroUserIdEl=document.getElementById("heroUserId");
 var heroTitleEl=document.getElementById("heroTitle");
-if(user&&user.photo_url){avatarEl.innerHTML="<img src=\""+user.photo_url+"\" alt=\"av\">";}
-else if(user&&user.first_name){avatarEl.textContent=user.first_name.charAt(0).toUpperCase();}
+if(avatarEl){
+if(p&&p.photo_url){avatarEl.innerHTML="<img src=\""+p.photo_url+"\" alt=\"av\">";}
+else if(p&&(p.first_name||p.username)){avatarEl.textContent=(p.first_name||p.username).charAt(0).toUpperCase();}
 else{avatarEl.textContent="?";}
-if(user){uidEl.textContent="ID: "+user.id;}else{uidEl.textContent="ID: UNKNOWN";}
-if(heroUidEl){heroUidEl.textContent=user&&user.id?String(user.id):"Guest";}
+}
+if(uidEl){uidEl.textContent=p&&p.id?("ID: "+p.id):"ID: UNKNOWN";}
+if(heroUidEl){heroUidEl.textContent=p&&p.id?String(p.id):"Guest";}
 if(heroAvatarEl){
-if(user&&user.photo_url){heroAvatarEl.innerHTML="<img src=\""+user.photo_url+"\" alt=\"hero-avatar\">";}
-else if(user&&(user.first_name||user.username)){heroAvatarEl.textContent=(user.first_name||user.username).charAt(0).toUpperCase();}
+if(p&&p.photo_url){heroAvatarEl.innerHTML="<img src=\""+p.photo_url+"\" alt=\"hero-avatar\">";}
+else if(p&&(p.first_name||p.username)){heroAvatarEl.textContent=(p.first_name||p.username).charAt(0).toUpperCase();}
 else{heroAvatarEl.textContent="?";}
 }
-if(heroUserNameEl){heroUserNameEl.textContent=user?(user.first_name||user.username||"Telegram User"):"Telegram Guest";}
-if(heroUserIdEl){heroUserIdEl.textContent=user&&user.id?("ID: "+user.id):"ID: UNKNOWN";}
-if(heroTitleEl&&user&&(user.first_name||user.username)){heroTitleEl.textContent=(user.first_name||user.username).toUpperCase();}
+if(heroUserNameEl){heroUserNameEl.textContent=p?(p.first_name||p.username||"Telegram User"):"Telegram Guest";}
+if(heroUserIdEl){heroUserIdEl.textContent=p&&p.id?("ID: "+p.id):"ID: UNKNOWN";}
+if(heroTitleEl&&p&&(p.first_name||p.username)){heroTitleEl.textContent=(p.first_name||p.username).toUpperCase();}
+}
+function showLogin(){
+renderUserProfile(user);
 loginDiv.className="show";
 }
 var loginBtn=document.getElementById("loginBtn");
-loginBtn.addEventListener("click",function(){
+var sendOtpBtn=document.getElementById("sendOtpBtn");
+var otpUserId=document.getElementById("otpUserId");
+var otpCode=document.getElementById("otpCode");
+var otpStatus=document.getElementById("otpStatus");
+function setOtpStatus(msg){if(otpStatus){otpStatus.textContent=msg||"";}}
+function getSessionToken(){var s=loadStoredAuth(); return s&&s.session_token?s.session_token:"";}
+function showDash(){renderUserProfile(user|| (storedAuth&&storedAuth.user) || null); dashDiv.className="show";}
+if(sendOtpBtn){sendOtpBtn.addEventListener("click",async function(){
+var uid=(otpUserId&&otpUserId.value?otpUserId.value.trim():"");
+if(!uid){setOtpStatus("Enter your Telegram user ID first."); return;}
+setOtpStatus("Sending OTP...");
+try{
+var res=await fetch(WEBAPP_API_BASE+"/webapp/auth/request-code",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({user_id:uid})});
+var data=await res.json().catch(function(){return {};});
+if(!res.ok||!data.ok){setOtpStatus((data&&data.error)||("Send OTP failed: HTTP "+res.status)); return;}
+setOtpStatus("OTP sent to your Telegram chat.");
+}catch(err){setOtpStatus("Send OTP failed: "+(err&&err.message?err.message:"network error"));}
+});}
+if(loginBtn){loginBtn.addEventListener("click",async function(){
+var uid=(otpUserId&&otpUserId.value?otpUserId.value.trim():"");
+var code=(otpCode&&otpCode.value?otpCode.value.trim():"");
+if(!uid||!code){setOtpStatus("Enter Telegram ID and OTP code."); return;}
+setOtpStatus("Verifying OTP...");
+try{
+var res=await fetch(WEBAPP_API_BASE+"/webapp/auth/verify-code",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({user_id:uid,code:code})});
+var data=await res.json().catch(function(){return {};});
+if(!res.ok||!data.ok||!data.session_token||!data.user){setOtpStatus((data&&data.error)||("Verify failed: HTTP "+res.status)); return;}
+storedAuth={session_token:data.session_token,user:data.user};
+saveStoredAuth(storedAuth);
+user=data.user;
+setOtpStatus("Access granted.");
 loginDiv.style.opacity="0";loginDiv.style.transition="opacity 0.4s";
 setTimeout(function(){loginDiv.style.display="none";showDash();},400);
-});
-function showDash(){dashDiv.className="show";}
+}catch(err){setOtpStatus("Verify failed: "+(err&&err.message?err.message:"network error"));}
+});}
 var featureModal=document.getElementById("featureModal");
 var modalTitle=document.getElementById("modalTitle");
 var modalBody=document.getElementById("modalBody");
@@ -463,17 +535,12 @@ var ACTIVE_RUN = false;
 var ACTIVE_JOB_ID = null;
 var ACTIVE_STREAM = null;
 function getAuthContext(){
-var initData = (tg && tg.initData) ? tg.initData : "";
-if(!initData){
-try{
-var qs = new URLSearchParams(window.location.search);
-initData = decodeURIComponent(qs.get("tgWebAppData") || "");
-}catch(e){}
-}
-var fallbackUser = user || parseUserFromInitDataString(initData) || null;
+var initData = "";
+var sessionToken = getSessionToken();
+var fallbackUser = user || (storedAuth&&storedAuth.user) || null;
 var uid = (fallbackUser && fallbackUser.id) ? parseInt(fallbackUser.id,10) : QUERY_UID;
 var uname = (fallbackUser && (fallbackUser.first_name || fallbackUser.username)) ? (fallbackUser.first_name || fallbackUser.username) : "WebAppUser";
-return {initData:initData, uid:uid, uname:uname};
+return {initData:initData, uid:uid, uname:uname, sessionToken:sessionToken};
 }
 function setRunUI(ui, running){
 if(ui&&ui.stateId){setText(ui.stateId,running?"Running...":"Idle");}
@@ -501,7 +568,7 @@ var startTimeout = setTimeout(function(){try{startCtrl.abort("start-timeout");}c
 var sr = null;
 try{
 sr = await fetch(WEBAPP_API_BASE+"/webapp/start",{method:"POST",headers:{"Content-Type":"application/json"},signal:startCtrl.signal,body:JSON.stringify({
-command:payload.command,text:payload.text,user_id:auth.uid,user_name:auth.uname,chat_id:auth.uid,init_data:auth.initData,notify_group:payload.notify_group,show_card:payload.show_card
+command:payload.command,text:payload.text,user_id:auth.uid,user_name:auth.uname,chat_id:auth.uid,init_data:auth.initData,session_token:auth.sessionToken,notify_group:payload.notify_group,show_card:payload.show_card
 })});
 }catch(startErr){
 var startMsg = (startErr&&startErr.name==="AbortError") ? "Start request timed out before job_id was returned." : "Start request failed: "+(startErr&&startErr.message?startErr.message:"network error");
@@ -607,7 +674,7 @@ return;
 var ctrl = new AbortController();
 ACTIVE_FETCH = ctrl;
 var r=await fetch(WEBAPP_API_BASE+"/webapp/run",{method:"POST",headers:{"Content-Type":"application/json"},signal:ctrl.signal,body:JSON.stringify({
-command:payload.command,text:payload.text,user_id:auth.uid,user_name:auth.uname,chat_id:auth.uid,init_data:auth.initData,notify_group:payload.notify_group,show_card:payload.show_card
+command:payload.command,text:payload.text,user_id:auth.uid,user_name:auth.uname,chat_id:auth.uid,init_data:auth.initData,session_token:auth.sessionToken,notify_group:payload.notify_group,show_card:payload.show_card
 })});
 var data=await r.json();
 if(!data||!data.ok){setResult("Error: "+((data&&data.error)||"run failed"));return;}
