@@ -234,7 +234,7 @@ radial-gradient(circle at top center,rgba(63,102,255,.18),transparent 24%);z-ind
 </div>
 </div>
 <div class="hero-eyebrow">Personal Workspace</div>
-<div class="hero-title">J.HUYNH</div>
+<div class="hero-title" id="heroTitle">J.HUYNH</div>
 <div class="hero-note">Fast charge flows, BIN sessions, and private runner controls with a colder blue core and a warmer red finish.</div>
 </div>
 <div class="hero-mark">&#9889;</div>
@@ -297,6 +297,15 @@ if(!u){return null;}
 return JSON.parse(u);
 }catch(e){return null;}
 }
+if(!user){
+try{
+user=parseUserFromInitDataString((tg&&tg.initData)||"");
+if(!user){
+var qsu=new URLSearchParams(window.location.search);
+user=parseUserFromInitDataString(decodeURIComponent(qsu.get("tgWebAppData")||""));
+}
+}catch(e){}
+}
 var bar=document.getElementById("bar");
 var pct=document.getElementById("pct");
 var statusMsg=document.getElementById("statusMsg");
@@ -321,6 +330,7 @@ var heroUidEl=document.getElementById("heroUid");
 var heroAvatarEl=document.getElementById("heroAvatar");
 var heroUserNameEl=document.getElementById("heroUserName");
 var heroUserIdEl=document.getElementById("heroUserId");
+var heroTitleEl=document.getElementById("heroTitle");
 if(user&&user.photo_url){avatarEl.innerHTML="<img src=\""+user.photo_url+"\" alt=\"av\">";}
 else if(user&&user.first_name){avatarEl.textContent=user.first_name.charAt(0).toUpperCase();}
 else{avatarEl.textContent="?";}
@@ -333,6 +343,7 @@ else{heroAvatarEl.textContent="?";}
 }
 if(heroUserNameEl){heroUserNameEl.textContent=user?(user.first_name||user.username||"Telegram User"):"Telegram Guest";}
 if(heroUserIdEl){heroUserIdEl.textContent=user&&user.id?("ID: "+user.id):"ID: UNKNOWN";}
+if(heroTitleEl&&user&&(user.first_name||user.username)){heroTitleEl.textContent=(user.first_name||user.username).toUpperCase();}
 loginDiv.className="show";
 }
 var loginBtn=document.getElementById("loginBtn");
