@@ -4,6 +4,8 @@ import hashlib
 import asyncio
 import json
 import uuid
+import time
+import secrets
 from urllib.parse import parse_qsl
 from typing import Any, Dict
 
@@ -28,9 +30,13 @@ WEBAPP_EXTRA_ORIGINS = [
     o.strip() for o in os.getenv("WEBAPP_EXTRA_ORIGINS", "https://app.xchudai.store").split(",") if o.strip()
 ]
 JOB_TTL_SECONDS = int(os.getenv("WEBAPP_JOB_TTL_SECONDS", "900"))
+AUTH_CODE_TTL_SECONDS = int(os.getenv("WEBAPP_AUTH_CODE_TTL_SECONDS", "300"))
+AUTH_SESSION_TTL_SECONDS = int(os.getenv("WEBAPP_AUTH_SESSION_TTL_SECONDS", "86400"))
 
 
 JOBS: Dict[str, Dict[str, Any]] = {}
+AUTH_CODES: Dict[str, Dict[str, Any]] = {}
+AUTH_SESSIONS: Dict[str, Dict[str, Any]] = {}
 
 
 def _is_allowed_origin(origin: str) -> bool:
@@ -111,6 +117,119 @@ def _extract_user_from_init_data(init_data: str) -> Dict[str, Any]:
         return {}
 
 
+def _auth_gc():
+    now = time.time()
+    expired_codes = [uid for uid, meta in AUTH_CODES.items() if now > float(meta.get("expires_at") or 0)]
+    for uid in expired_codes:
+        AUTH_CODES.pop(uid, None)
+    expired_sessions = [token for token, meta in AUTH_SESSIONS.items() if now > float(meta.get("expires_at") or 0)]
+    for token in expired_sessions:
+        AUTH_SESSIONS.pop(token, None)
+
+
+async def _telegram_api(method: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+    if not BOT_TOKEN:
+        raise RuntimeError("BOT_TOKEN missing")
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/{method}"
+    timeout = aiohttp.ClientTimeout(total=12)
+    async with aiohttp.ClientSession(timeout=timeout) as session:
+        async with session.post(url, json=payload) as resp:
+            data = await resp.json(content_type=None)
+            if resp.status != 200 or not data.get("ok"):
+                raise RuntimeError((data.get("description") or f"telegram http {resp.status}")[:200])
+            return data.get("result") or {}
+
+
+async def _load_telegram_profile(user_id: int) -> Dict[str, Any]:
+    profile: Dict[str, Any] = {"id": user_id, "first_name": "Telegram User", "username": "", "photo_url": ""}
+    try:
+        chat = await _telegram_api("getChat", {"chat_id": int(user_id)})
+        profile["first_name"] = chat.get("first_name") or chat.get("username") or profile["first_name"]
+        profile["username"] = chat.get("username") or ""
+    except Exception:
+        pass
+    try:
+        photos = await _telegram_api("getUserProfilePhotos", {"user_id": int(user_id), "limit": 1})
+        if photos.get("total_count"):
+            sizes = (photos.get("photos") or [[]])[0]
+            if sizes:
+                best = sizes[-1]
+                file_info = await _telegram_api("getFile", {"file_id": best.get("file_id")})
+                file_path = file_info.get("file_path") or ""
+                if file_path:
+                    profile["photo_url"] = f"https://api.telegram.org/file/bot{BOT_TOKEN}/{file_path}"
+    except Exception:
+        pass
+    return profile
+
+
+def _user_from_session_token(session_token: str) -> Dict[str, Any]:
+    _auth_gc()
+    meta = AUTH_SESSIONS.get((session_token or "").strip())
+    if not meta:
+        return {}
+    return dict(meta.get("user") or {})
+
+
+def _resolve_webapp_user(payload: Dict[str, Any]) -> Dict[str, Any]:
+    init_data = (payload.get("init_data") or "").strip()
+    if init_data:
+        if not _verify_telegram_init_data(init_data):
+            raise web.HTTPUnauthorized(text=json.dumps({"ok": False, "error": "unauthorized webapp"}), content_type="application/json")
+        tg_user = _extract_user_from_init_data(init_data)
+        if tg_user:
+            return tg_user
+    session_user = _user_from_session_token(payload.get("session_token") or "")
+    if session_user:
+        return session_user
+    return {}
+
+
+async def webapp_request_code_handler(request: web.Request) -> web.Response:
+    try:
+        payload: Dict[str, Any] = await request.json()
+    except Exception:
+        return web.json_response({"ok": False, "error": "invalid json"}, status=400)
+    _auth_gc()
+    user_id = int(str(payload.get("user_id") or "0").strip() or 0)
+    if not user_id:
+        return web.json_response({"ok": False, "error": "missing user_id"}, status=400)
+    code = f"{secrets.randbelow(900000) + 100000}"
+    AUTH_CODES[str(user_id)] = {"code": code, "expires_at": time.time() + AUTH_CODE_TTL_SECONDS}
+    try:
+        await _telegram_api("sendMessage", {
+            "chat_id": user_id,
+            "text": f"<b>J.HUYNH OTP</b>\n\nCode: <code>{code}</code>\nExpires in 5 minutes.",
+            "parse_mode": "HTML",
+        })
+    except Exception as e:
+        return web.json_response({"ok": False, "error": f"failed to send code: {str(e)[:120]}"}, status=400)
+    return web.json_response({"ok": True, "sent": True, "expires_in": AUTH_CODE_TTL_SECONDS})
+
+
+async def webapp_verify_code_handler(request: web.Request) -> web.Response:
+    try:
+        payload: Dict[str, Any] = await request.json()
+    except Exception:
+        return web.json_response({"ok": False, "error": "invalid json"}, status=400)
+    _auth_gc()
+    user_id = str(payload.get("user_id") or "").strip()
+    code = str(payload.get("code") or "").strip()
+    meta = AUTH_CODES.get(user_id)
+    if not user_id or not code or not meta:
+        return web.json_response({"ok": False, "error": "invalid code"}, status=400)
+    if time.time() > float(meta.get("expires_at") or 0):
+        AUTH_CODES.pop(user_id, None)
+        return web.json_response({"ok": False, "error": "code expired"}, status=400)
+    if code != str(meta.get("code")):
+        return web.json_response({"ok": False, "error": "wrong code"}, status=400)
+    AUTH_CODES.pop(user_id, None)
+    profile = await _load_telegram_profile(int(user_id))
+    session_token = secrets.token_urlsafe(24)
+    AUTH_SESSIONS[session_token] = {"user": profile, "expires_at": time.time() + AUTH_SESSION_TTL_SECONDS}
+    return web.json_response({"ok": True, "session_token": session_token, "user": profile})
+
+
 async def webapp_run_handler(request: web.Request) -> web.Response:
     """Public WebApp endpoint: auth by Telegram initData instead of static secret."""
     try:
@@ -118,16 +237,10 @@ async def webapp_run_handler(request: web.Request) -> web.Response:
     except Exception:
         return web.json_response({"ok": False, "error": "invalid json"}, status=400)
 
-    init_data = (payload.get("init_data") or "").strip()
-    tg_user = _extract_user_from_init_data(init_data)
-    # Prefer strict Telegram auth, but allow fallback mode for clients where initData is unavailable.
-    if init_data:
-        if not _verify_telegram_init_data(init_data):
-            return web.json_response({"ok": False, "error": "unauthorized webapp"}, status=401)
-    else:
-        # Fallback mode for Telegram clients that don't expose initData reliably.
-        # Keep request flowing so WebApp remains usable.
-        pass
+    try:
+        tg_user = _resolve_webapp_user(payload)
+    except web.HTTPUnauthorized as exc:
+        return web.Response(status=exc.status, text=exc.text, content_type="application/json")
 
     # Ensure worker task has a stable Telegram user context for premium/owner checks.
     if tg_user:
@@ -168,10 +281,10 @@ async def webapp_start_handler(request: web.Request) -> web.Response:
     except Exception:
         return web.json_response({"ok": False, "error": "invalid json"}, status=400)
 
-    init_data = (payload.get("init_data") or "").strip()
-    tg_user = _extract_user_from_init_data(init_data)
-    if init_data and not _verify_telegram_init_data(init_data):
-        return web.json_response({"ok": False, "error": "unauthorized webapp"}, status=401)
+    try:
+        tg_user = _resolve_webapp_user(payload)
+    except web.HTTPUnauthorized as exc:
+        return web.Response(status=exc.status, text=exc.text, content_type="application/json")
 
     if tg_user:
         payload["user_id"] = int(tg_user.get("id") or payload.get("user_id") or 0)
@@ -368,6 +481,8 @@ def create_app() -> web.Application:
     app = web.Application(middlewares=[cors_middleware])
     app.router.add_get("/health", health_handler)
     app.router.add_post("/run", run_handler)
+    app.router.add_post("/webapp/auth/request-code", webapp_request_code_handler)
+    app.router.add_post("/webapp/auth/verify-code", webapp_verify_code_handler)
     app.router.add_post("/webapp/run", webapp_run_handler)
     app.router.add_post("/webapp/start", webapp_start_handler)
     app.router.add_get("/webapp/stream/{job_id}", webapp_stream_handler)
