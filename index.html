@@ -85,7 +85,7 @@ radial-gradient(circle at top center,rgba(63,102,255,.18),transparent 24%);z-ind
 .brand-block{display:flex;flex-direction:column;gap:2px}
 .brand-title{font-size:28px;font-weight:700;letter-spacing:.4px;color:#fff}
 .brand-sub{font-size:12px;color:#90a0bf;letter-spacing:2px;text-transform:uppercase}
-.hero-card,.usage-card,.quick-card,.leaderboard-card{background:rgba(17,19,27,.86);border:1px solid rgba(255,255,255,.06);border-radius:26px;backdrop-filter:blur(16px);box-shadow:0 18px 40px rgba(0,0,0,.24)}
+.hero-card,.quick-card,.leaderboard-card{background:rgba(17,19,27,.86);border:1px solid rgba(255,255,255,.06);border-radius:26px;backdrop-filter:blur(16px);box-shadow:0 18px 40px rgba(0,0,0,.24)}
 .hero-card{padding:18px 18px 16px;margin-bottom:16px;overflow:hidden;position:relative}
 .hero-card:before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,rgba(63,102,255,.16),transparent 32%,rgba(241,91,62,.08) 72%,transparent);pointer-events:none}
 .hero-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px;position:relative;z-index:1}
@@ -105,18 +105,7 @@ radial-gradient(circle at top center,rgba(63,102,255,.18),transparent 24%);z-ind
 .hero-stat .k{display:block;font-size:11px;color:#8f96aa;letter-spacing:1px;text-transform:uppercase;margin-top:3px}
 .section-title{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:700;color:#fff;margin:0 0 12px}
 .section-title .dot{width:32px;height:32px;border-radius:12px;background:rgba(63,102,255,.16);display:flex;align-items:center;justify-content:center;color:#8ca8ff}
-.usage-card,.quick-card,.leaderboard-card{padding:16px;margin-bottom:16px}
-.usage-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.usage-item{padding:16px;border-radius:20px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05)}
-.usage-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px}
-.usage-name{font-size:13px;color:#dbe0ec}
-.usage-value{font-size:15px;font-weight:700;color:#fff}
-.usage-bar{height:8px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden}
-.usage-fill{height:100%;border-radius:999px}
-.usage-fill.blue{width:64%;background:linear-gradient(90deg,#4d73ff,#89a7ff)}
-.usage-fill.green{width:10%;background:linear-gradient(90deg,#1dcf97,#64f3c5)}
-.usage-fill.gold{width:28%;background:linear-gradient(90deg,#f0aa32,#ffe37a)}
-.usage-fill.orange{width:52%;background:linear-gradient(90deg,#f15b3e,#ff9c5f)}
+.quick-card,.leaderboard-card{padding:16px;margin-bottom:16px}
 .action-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
 .tc{border-radius:22px;padding:18px 16px;cursor:pointer;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.05);position:relative;overflow:hidden;min-height:126px}
 .tc:before{content:"";position:absolute;inset:0;background:linear-gradient(145deg,rgba(255,255,255,.03),transparent);pointer-events:none}
@@ -145,8 +134,12 @@ radial-gradient(circle at top center,rgba(63,102,255,.18),transparent 24%);z-ind
 .proxy-line{font-size:13px;color:#fff;word-break:break-all;line-height:1.45}
 .proxy-sub{font-size:12px;color:#99a4bc;margin-top:6px}
 .proxy-actions{display:flex;gap:8px;margin-top:12px}
-.mini-btn{flex:1;padding:11px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#eef2ff;font-weight:700}
-.mini-btn.danger{background:rgba(240,70,101,.12);border-color:rgba(240,70,101,.24);color:#ffd7de}
+.mini-btn{flex:1;padding:11px 12px;border-radius:14px;border:1px solid rgba(142,163,255,.14);background:linear-gradient(180deg,rgba(37,48,86,.98),rgba(23,30,54,.98));color:#eef2ff;font-weight:800;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 12px 20px rgba(10,17,38,.18)}
+.mini-btn.danger{background:linear-gradient(180deg,rgba(118,32,52,.95),rgba(78,21,35,.98));border-color:rgba(255,120,143,.24);color:#ffd7de}
+.proxy-status{margin-top:12px;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06);font-size:13px;color:#dbe4ff;line-height:1.5}
+.proxy-status.good{background:linear-gradient(180deg,rgba(11,63,43,.92),rgba(10,41,28,.94));border-color:rgba(56,211,159,.42);color:#caffec}
+.proxy-status.bad{background:linear-gradient(180deg,rgba(58,18,26,.92),rgba(36,12,18,.94));border-color:rgba(255,108,127,.42);color:#ffd4db}
+.proxy-status.info{background:linear-gradient(180deg,rgba(35,44,81,.92),rgba(23,31,58,.94));border-color:rgba(99,135,255,.35);color:#d9e4ff}
 .dash-footer{padding:12px 0 2px;text-align:center;font-size:11px;color:#677188;letter-spacing:2px;text-transform:uppercase}
 .modal{display:none;position:fixed;z-index:9998;inset:0;background:rgba(6,7,12,.72);backdrop-filter:blur(14px);align-items:flex-end}
 .modal.show{display:flex}
@@ -154,14 +147,17 @@ radial-gradient(circle at top center,rgba(63,102,255,.18),transparent 24%);z-ind
 .modal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .modal-title{font-size:28px;font-weight:700;color:#fff;letter-spacing:.2px}
 .modal-hint{font-size:12px;color:#8c95aa;letter-spacing:2px;text-transform:uppercase}
-.f-input,textarea.f-input,select{width:100%;margin-bottom:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:18px;color:#fff;padding:15px 16px;font-size:16px;font-family:inherit}
+.input-shell{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;margin-bottom:12px}
+.f-input,textarea.f-input,select{width:100%;margin-bottom:12px;background:linear-gradient(180deg,rgba(29,34,48,.96),rgba(18,22,31,.98));border:1px solid rgba(147,163,255,.12);border-radius:18px;color:#fff;padding:15px 16px;font-size:16px;font-family:inherit;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 14px 24px rgba(0,0,0,.18);transition:border-color .18s ease,box-shadow .18s ease,transform .16s ease}
+.input-shell .f-input{margin-bottom:0}
 .f-input::placeholder,textarea.f-input::placeholder{color:#697388}
-.f-btn{width:100%;margin-top:10px;padding:16px;border:0;border-radius:18px;color:#fff;font-weight:700;font-size:22px;background:linear-gradient(135deg,#3150de,#5377ff 60%,#88a6ff);box-shadow:0 18px 36px rgba(49,80,222,.34);transition:transform .16s ease,filter .18s ease}
-.f-btn:active{transform:translateY(1px) scale(.995);filter:brightness(1.05)}
-.f-cancel{width:100%;margin-top:8px;padding:14px;border:1px solid rgba(255,255,255,.08);border-radius:18px;background:rgba(255,255,255,.02);color:#cfd6e6}
+.f-input:focus,textarea.f-input:focus,select:focus{outline:none;border-color:rgba(120,150,255,.42);box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 0 0 1px rgba(120,150,255,.16),0 18px 34px rgba(39,67,199,.18)}
+.f-btn{width:100%;margin-top:10px;padding:16px;border:1px solid rgba(145,172,255,.18);border-radius:20px;color:#fff;font-weight:800;font-size:22px;background:linear-gradient(180deg,#6f8eff 0%,#4e6eff 32%,#3251df 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 22px 36px rgba(49,80,222,.3),0 8px 14px rgba(20,31,77,.24);transition:transform .16s ease,filter .18s ease,box-shadow .18s ease}
+.f-btn:active{transform:translateY(1px) scale(.995);filter:brightness(1.04);box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 12px 22px rgba(49,80,222,.24)}
+.f-cancel{width:100%;margin-top:8px;padding:14px;border:1px solid rgba(255,255,255,.08);border-radius:18px;background:linear-gradient(180deg,rgba(31,36,49,.96),rgba(18,21,30,.98));box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 12px 24px rgba(0,0,0,.14);color:#cfd6e6}
 .seg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.seg button{padding:14px 12px;border-radius:18px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03);color:#dfe4f1;font-size:18px;font-weight:700}
-.seg button.active{background:linear-gradient(135deg,#2743c7,#4f73ff);color:#fff;box-shadow:0 14px 28px rgba(49,80,222,.3)}
+.seg button{padding:14px 12px;border-radius:18px;border:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg,rgba(31,36,49,.96),rgba(18,21,30,.98));color:#dfe4f1;font-size:18px;font-weight:700;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 12px 22px rgba(0,0,0,.14);transition:transform .16s ease,filter .16s ease,border-color .16s ease}
+.seg button.active{background:linear-gradient(180deg,#6180ff 0%,#4667f4 38%,#2844c7 100%);border-color:rgba(145,172,255,.22);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 18px 32px rgba(49,80,222,.26)}
 .status-line{font-size:15px;color:#9fa8bc;margin:10px 0 12px}
 .detail-card{border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.025);padding:14px;border-radius:20px;margin:12px 0}
 .detail-row{display:flex;justify-content:space-between;gap:10px;font-size:14px;color:#d5daea;padding:5px 0}
@@ -171,14 +167,16 @@ radial-gradient(circle at top center,rgba(63,102,255,.18),transparent 24%);z-ind
 .log-line.log-card.hit{border-color:rgba(56,211,159,.46);background:linear-gradient(180deg,rgba(12,58,40,.92),rgba(10,41,28,.94));color:#cbffeb}
 .log-line.log-card.threeds{border-color:rgba(255,208,90,.46);background:linear-gradient(180deg,rgba(60,46,15,.92),rgba(42,33,12,.94));color:#ffe5a5}
 .log-line.log-card.declined{border-color:rgba(255,108,127,.42);background:linear-gradient(180deg,rgba(58,18,26,.92),rgba(36,12,18,.94));color:#ffd1d7}
-.stop-btn{width:100%;padding:16px;border:0;border-radius:18px;background:linear-gradient(135deg,#c82a4b,#f04665);color:#fff;font-weight:700;font-size:22px;margin:10px 0 0;box-shadow:0 16px 28px rgba(200,42,75,.28)}
+.stop-btn{width:100%;padding:16px;border:1px solid rgba(255,158,174,.16);border-radius:20px;background:linear-gradient(180deg,#ff6885 0%,#ef4b67 36%,#c82a4b 100%);color:#fff;font-weight:800;font-size:22px;margin:10px 0 0;box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 18px 30px rgba(200,42,75,.24)}
 .runner-head{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:8px 0 12px}
 .runner-stat{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:20px;padding:12px;text-align:center}
 .runner-stat b{font-size:28px;color:#fff;display:block}
 .runner-stat span{display:block;font-size:11px;color:#97a0b5;letter-spacing:1px;text-transform:uppercase;margin-top:4px}
 .bin-tools{display:grid;grid-template-columns:1.4fr 1fr;gap:10px;margin-bottom:8px}
 .bin-tools select{width:100%;padding:15px;border-radius:18px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#fff}
-.bin-tools .mini{padding:14px;border:1px solid rgba(255,255,255,.07);border-radius:18px;background:rgba(255,255,255,.03);color:#f1f3f8;font-weight:700}
+.bin-tools .mini,.paste-btn{padding:14px;border:1px solid rgba(142,163,255,.14);border-radius:18px;background:linear-gradient(180deg,rgba(44,55,96,.98),rgba(26,33,58,.98));color:#f4f7ff;font-weight:800;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 14px 24px rgba(12,18,41,.22);transition:transform .16s ease,filter .16s ease,box-shadow .16s ease}
+.paste-btn{min-width:84px;font-size:14px;letter-spacing:.3px;padding:15px 16px}
+.bin-tools .mini:active,.paste-btn:active,.seg button:active{transform:translateY(1px);filter:brightness(1.04)}
 #err{display:none;position:fixed;inset:0;background:#0a0a14;z-index:9999;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
 #err.show{display:flex}
 #err .err-icon{font-size:52px;margin-bottom:16px}
@@ -264,15 +262,6 @@ radial-gradient(circle at top center,rgba(63,102,255,.18),transparent 24%);z-ind
 <div class="hero-stat"><span class="v" id="heroUid">--</span><span class="k">Connected Telegram ID</span></div>
 <div class="hero-stat"><span class="v" id="heroHitCount">0</span><span class="k">Your Total HIT</span></div>
 <div class="hero-stat"><span class="v" id="heroRank">#--</span><span class="k">Your Rank</span></div>
-</div>
-</div>
-<div class="usage-card">
-<div class="section-title"><span class="dot">&#128202;</span><span>Daily Usage</span></div>
-<div class="usage-grid">
-<div class="usage-item"><div class="usage-top"><div class="usage-name">CC Checks</div><div class="usage-value">11700/&infin;</div></div><div class="usage-bar"><div class="usage-fill blue"></div></div></div>
-<div class="usage-item"><div class="usage-top"><div class="usage-name">Shopify Checks</div><div class="usage-value">0/&infin;</div></div><div class="usage-bar"><div class="usage-fill green"></div></div></div>
-<div class="usage-item"><div class="usage-top"><div class="usage-name">Gateway Finder</div><div class="usage-value">0/10</div></div><div class="usage-bar"><div class="usage-fill gold"></div></div></div>
-<div class="usage-item"><div class="usage-top"><div class="usage-name">Premium Slots</div><div class="usage-value">5</div></div><div class="usage-bar"><div class="usage-fill orange"></div></div></div>
 </div>
 </div>
 <div class="quick-card">
@@ -387,12 +376,18 @@ var sendOtpBtn=document.getElementById("sendOtpBtn");
 var otpUserId=document.getElementById("otpUserId");
 var otpCode=document.getElementById("otpCode");
 var otpStatus=document.getElementById("otpStatus");
+var TG_INIT_DATA=(tg&&tg.initData)?String(tg.initData):"";
+if(otpUserId&&user&&user.id){
+otpUserId.value=String(user.id);
+otpUserId.readOnly=true;
+}
 function setOtpStatus(msg){if(otpStatus){otpStatus.textContent=msg||"";}}
 function getSessionToken(){var s=loadStoredAuth(); return s&&s.session_token?s.session_token:"";}
  function getAuthHeaders(){
  var h={"Content-Type":"application/json"};
  var s=getSessionToken();
  if(s){h["X-Session-Token"]=s;}
+ if(TG_INIT_DATA){h["X-Telegram-Init-Data"]=TG_INIT_DATA;}
  return h;
  }
  async function loadLeaderboard(){
@@ -429,21 +424,21 @@ function getSessionToken(){var s=loadStoredAuth(); return s&&s.session_token?s.s
  return;
  }
  list.innerHTML=items.map(function(proxy,idx){
- return "<div class='proxy-item'><div class='proxy-line'>"+String(proxy).replace(/</g,"&lt;")+"</div><div class='proxy-sub' id='proxyMeta_"+idx+"'>Ready to check</div><div class='proxy-actions'><button class='mini-btn' data-proxy-check='"+idx+"'>Check</button><button class='mini-btn danger' data-proxy-remove='"+idx+"'>Remove</button></div></div>";
+ return "<div class='proxy-item'><div class='proxy-line'>"+String(proxy).replace(/</g,"&lt;")+"</div><div class='proxy-sub'>Saved proxy</div><div id='proxyMeta_"+idx+"'></div><div class='proxy-actions'><button class='mini-btn' data-proxy-check='"+idx+"'>Check</button><button class='mini-btn danger' data-proxy-remove='"+idx+"'>Remove</button></div></div>";
  }).join("");
  for(var i=0;i<items.length;i++){
  (function(index){
  var cb=document.querySelector("[data-proxy-check='"+index+"']");
  var rb=document.querySelector("[data-proxy-remove='"+index+"']");
  if(cb){cb.onclick=async function(){
- setText("proxyMeta_"+index,"Checking...");
+ setHtml("proxyMeta_"+index,"<div class='proxy-status info'>Checking proxy...</div>");
  var data=await proxyApi("/webapp/proxy/check",{proxy:items[index]});
- if(!data.ok){setText("proxyMeta_"+index,data.error||"Check failed");return;}
+ if(!data.ok){setHtml("proxyMeta_"+index,"<div class='proxy-status bad'>"+(data.error||"Check failed")+"</div>");return;}
  var r=data.result||{};
- setText("proxyMeta_"+index,(r.status||"dead").toUpperCase()+" • "+(r.response_time||"--")+" • "+(r.external_ip||r.error||"N/A"));
+ setHtml("proxyMeta_"+index,formatProxyState(r));
  };}
  if(rb){rb.onclick=async function(){
- setText("proxyMeta_"+index,"Removing...");
+ setHtml("proxyMeta_"+index,"<div class='proxy-status info'>Removing proxy...</div>");
  var data=await proxyApi("/webapp/proxy/remove",{proxy:items[index]});
  if(!data.ok&&!data.removed){setText("proxyMeta_"+index,data.error||"Remove failed");return;}
  renderProxyList(data.proxies||[]);
@@ -464,9 +459,13 @@ var uid=(otpUserId&&otpUserId.value?otpUserId.value.trim():"");
 if(!uid){setOtpStatus("Enter your Telegram user ID first."); return;}
 setOtpStatus("Sending OTP...");
 try{
-var res=await fetch(WEBAPP_API_BASE+"/webapp/auth/request-code",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({user_id:uid})});
+var res=await fetch(WEBAPP_API_BASE+"/webapp/auth/request-code",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({user_id:uid,init_data:TG_INIT_DATA})});
 var data=await res.json().catch(function(){return {};});
-if(!res.ok||!data.ok){setOtpStatus((data&&data.error)||("Send OTP failed: HTTP "+res.status)); return;}
+if(!res.ok||!data.ok){
+if(data&&data.retry_in){setOtpStatus("Wait "+data.retry_in+"s before requesting OTP again.");}
+else{setOtpStatus((data&&data.error)||("Send OTP failed: HTTP "+res.status));}
+return;
+}
 setOtpStatus("OTP sent to your Telegram chat.");
 }catch(err){setOtpStatus("Send OTP failed: "+(err&&err.message?err.message:"network error"));}
 });}
@@ -476,7 +475,7 @@ var code=(otpCode&&otpCode.value?otpCode.value.trim():"");
 if(!uid||!code){setOtpStatus("Enter Telegram ID and OTP code."); return;}
 setOtpStatus("Verifying OTP...");
 try{
-var res=await fetch(WEBAPP_API_BASE+"/webapp/auth/verify-code",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({user_id:uid,code:code})});
+var res=await fetch(WEBAPP_API_BASE+"/webapp/auth/verify-code",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({user_id:uid,code:code,init_data:TG_INIT_DATA})});
 var data=await res.json().catch(function(){return {};});
 if(!res.ok||!data.ok||!data.session_token||!data.user){setOtpStatus((data&&data.error)||("Verify failed: HTTP "+res.status)); return;}
 storedAuth={session_token:data.session_token,user:data.user};
@@ -492,7 +491,7 @@ var modalTitle=document.getElementById("modalTitle");
 var modalBody=document.getElementById("modalBody");
 var modalCloseBtn=document.getElementById("modalCloseBtn");
 var qsInit = new URLSearchParams(window.location.search);
-var WEBAPP_API_BASE=((qsInit.get("api")||"").trim()||window.WEBAPP_API_BASE||"").replace(/\/$/,"");
+var WEBAPP_API_BASE=((qsInit.get("api")||"").trim()||window.WEBAPP_API_BASE||window.location.origin||"").replace(/\/$/,"");
 var QUERY_UID = parseInt((qsInit.get("uid")||"0"),10) || 0;
 var DISPLAY_UID = (user && user.id) ? parseInt(user.id,10) : QUERY_UID;
 
@@ -510,13 +509,68 @@ function closeModal(){featureModal.className="modal";}
 if(modalCloseBtn){modalCloseBtn.addEventListener("click",closeModal);}
 function openModal(title,html){modalTitle.textContent=title;modalBody.innerHTML=html;featureModal.className="modal show";}
 function getVal(id){var el=document.getElementById(id);return el?el.value.trim():"";}
+function urlInputField(id,placeholder,buttonId){
+return "<div class='input-shell'><input id='"+id+"' class='f-input' placeholder='"+placeholder+"'><button type='button' class='paste-btn' id='"+buttonId+"'>Paste</button></div>";
+}
 function appendLog(id,msg){
 var box=document.getElementById(id); if(!box)return;
 var cls=classifyLine(msg);
 var div=document.createElement("div"); div.className="log-line"+(cls?" log-card "+cls:""); div.textContent=msg;
 box.prepend(div);
 }
+function setHtml(id,html){var el=document.getElementById(id); if(el)el.innerHTML=html||"";}
 function setText(id,val){var el=document.getElementById(id); if(el)el.textContent=val||"";}
+async function pasteIntoField(id,stateId,logId){
+var el=document.getElementById(id);
+if(!el){return;}
+try{
+if(navigator.clipboard&&navigator.clipboard.readText){
+var text=String(await navigator.clipboard.readText()||"").trim();
+if(!text){
+if(stateId){setText(stateId,"Clipboard is empty");}
+if(logId){appendLog(logId,"Clipboard is empty.");}
+el.focus();
+return;
+}
+el.value=text;
+try{el.dispatchEvent(new Event("input",{bubbles:true}));}catch(e){}
+try{el.dispatchEvent(new Event("change",{bubbles:true}));}catch(e){}
+if(stateId){setText(stateId,"Pasted from clipboard");}
+if(logId){appendLog(logId,"Pasted URL from clipboard.");}
+return;
+}
+}catch(e){}
+if(stateId){setText(stateId,"Clipboard access unavailable");}
+if(logId){appendLog(logId,"Clipboard access unavailable. Paste manually.");}
+el.focus();
+if(el.select){el.select();}
+}
+function bindPasteButton(buttonId,inputId,stateId,logId){
+var btn=document.getElementById(buttonId);
+if(!btn){return;}
+btn.onclick=function(){pasteIntoField(inputId,stateId,logId);};
+}
+function resetRunnerSession(ui){
+if(!ui) return;
+if(ui.logId){setHtml(ui.logId,"");}
+if(ui.stateId){setText(ui.stateId,"Idle");}
+if(ui.statsId){
+setText(ui.statsId+"_hit","0");
+setText(ui.statsId+"_3ds","0");
+setText(ui.statsId+"_dec","0");
+}
+setText("dMerchant","-");
+setText("dAmount","-");
+setText("dAttempts","-");
+}
+function formatProxyState(result){
+var alive=(result&&String(result.status||"").toLowerCase()==="alive");
+var speed=result&&result.response_time?result.response_time:"--";
+var ip=result&&(result.external_ip||result.ip||result.ip_obfuscated)?(result.external_ip||result.ip||result.ip_obfuscated):"N/A";
+var err=result&&result.error?result.error:"No response";
+var cls=alive?"good":"bad";
+return "<div class='proxy-status "+cls+"'><b>"+(alive?"LIVE":"DEAD")+"</b><br>Speed: "+speed+"<br>IP: "+ip+(alive?"":"<br>Error: "+err)+"</div>";
+}
 function extractDetail(lines, keys){
 for(var i=0;i<lines.length;i++){
 for(var j=0;j<keys.length;j++){
@@ -612,21 +666,20 @@ if(ui&&ui.startBtnId){var sb=document.getElementById(ui.startBtnId); if(sb){sb.d
 async function runApi(payload, ui){
 if(ACTIVE_RUN){
 if(ui&&ui.logId){appendLog(ui.logId,"A request is already running. Stop it first.");}
-setResult("Another request is running. Stop first.");
+if(ui&&ui.stateId){setText(ui.stateId,"Busy");}
 return;
 }
 var auth = getAuthContext();
-if(!WEBAPP_API_BASE){setResult("Set API Base URL first.");return;}
-setResult("Processing request...");
+if(!WEBAPP_API_BASE){if(ui&&ui.logId){appendLog(ui.logId,"Set API Base URL first.");} if(ui&&ui.stateId){setText(ui.stateId,"API Missing");} return;}
+resetRunnerSession(ui);
+if(ui&&ui.stateId){setText(ui.stateId,"Starting...");}
 var waitTicker = null;
 try{
 ACTIVE_RUN = true;
 setRunUI(ui,true);
-if(ui&&ui.logId){appendLog(ui.logId,"Starting request...");}
-var realtime = !!(ui&&ui.realtime);
-if(realtime){
-if(ui&&ui.logId){appendLog(ui.logId,"POST /webapp/start");}
-var startCtrl = new AbortController();
+ var realtime = !!(ui&&ui.realtime);
+ if(realtime){
+ var startCtrl = new AbortController();
 var startTimeout = setTimeout(function(){try{startCtrl.abort("start-timeout");}catch(e){}}, 12000);
 var sr = null;
 try{
@@ -636,7 +689,7 @@ command:payload.command,text:payload.text,user_id:auth.uid,user_name:auth.uname,
 }catch(startErr){
 var startMsg = (startErr&&startErr.name==="AbortError") ? "Start request timed out before job_id was returned." : "Start request failed: "+(startErr&&startErr.message?startErr.message:"network error");
 if(ui&&ui.logId){appendLog(ui.logId,startMsg);}
-setResult(startMsg);
+if(ui&&ui.stateId){setText(ui.stateId,"Start failed");}
 return;
 }finally{
 clearTimeout(startTimeout);
@@ -646,25 +699,24 @@ var t1 = await sr.text().catch(function(){return "";});
 var msg1 = "Start failed HTTP "+sr.status+" "+sr.statusText;
 if(ui&&ui.logId){appendLog(ui.logId,msg1);}
 if(ui&&ui.logId&&t1){appendLog(ui.logId,cleanOutput(t1).slice(0,180));}
-setResult(msg1);
+if(ui&&ui.stateId){setText(ui.stateId,"HTTP error");}
 return;
 }
 var sd = null;
 try{sd = await sr.json();}catch(ej){
 var msgJson = "Invalid JSON from /webapp/start";
 if(ui&&ui.logId){appendLog(ui.logId,msgJson);}
-setResult(msgJson);
+if(ui&&ui.stateId){setText(ui.stateId,"Invalid response");}
 return;
 }
 if(!sd||!sd.ok||!sd.job_id){
 var msgStart = "Error: "+((sd&&sd.error)||"start failed");
 if(ui&&ui.logId){appendLog(ui.logId,msgStart);}
-setResult(msgStart);
+if(ui&&ui.stateId){setText(ui.stateId,"Start failed");}
 return;
-}
-ACTIVE_JOB_ID = sd.job_id;
-if(ui&&ui.logId){appendLog(ui.logId,"Job "+ACTIVE_JOB_ID+" started.");}
-var agg=[];
+ }
+ ACTIVE_JOB_ID = sd.job_id;
+ var agg=[];
 var firstLogAt = 0;
 var streamOpen = false;
 var lastSeq = 0;
@@ -675,15 +727,10 @@ function connectStream(){
 if(streamDone) return;
 var streamUrl = WEBAPP_API_BASE+"/webapp/stream/"+ACTIVE_JOB_ID;
 ACTIVE_STREAM = new EventSource(streamUrl);
-waitTicker = setInterval(function(){
-if(!ACTIVE_RUN||streamDone){clearInterval(waitTicker); waitTicker=null; return;}
-if(ui&&ui.logId){appendLog(ui.logId, firstLogAt ? "Receiving logs..." : "Waiting for realtime logs...");}
-}, 4000);
-ACTIVE_STREAM.onopen = function(){
-streamOpen = true;
-reconnectAttempts = 0;
-if(ui&&ui.logId){appendLog(ui.logId,"Realtime stream connected.");}
-};
+ ACTIVE_STREAM.onopen = function(){
+ streamOpen = true;
+ reconnectAttempts = 0;
+ };
 ACTIVE_STREAM.onmessage = function(ev){
 try{
 var e = JSON.parse(ev.data||"{}");
@@ -706,8 +753,8 @@ updateRunnerStats(agg, ui.statsId||"");
  var res=e.result||{};
  var outRaw=(res.messages&&res.messages.length)?res.messages.join("\n\n"):agg.join("\n");
  if(res.hit){appendLog(ui.logId,res.group_notified?"HIT saved and sent to group.":"HIT saved. Group notification was not sent.");}
- setResult(cleanOutput(outRaw)||"Done.");
- loadLeaderboard();
+ if(ui&&ui.logId&&!agg.length&&outRaw){appendLog(ui.logId,cleanOutput(outRaw)||"Done.");}
+  loadLeaderboard();
  if(waitTicker){clearInterval(waitTicker); waitTicker=null;}
 setRunUI(ui,false);
 ACTIVE_RUN=false;
@@ -720,14 +767,13 @@ ACTIVE_STREAM.onerror = function(ev){
 if(streamDone) return;
 if(ACTIVE_STREAM){ACTIVE_STREAM.close(); ACTIVE_STREAM=null;}
 if(waitTicker){clearInterval(waitTicker); waitTicker=null;}
-reconnectAttempts++;
-if(reconnectAttempts <= MAX_RECONNECT){
-var delay = Math.min(1000 * Math.pow(1.5, reconnectAttempts-1), 8000);
-if(ui&&ui.logId){appendLog(ui.logId,"Stream lost. Reconnecting in "+Math.round(delay/1000)+"s... ("+reconnectAttempts+"/"+MAX_RECONNECT+")");}
-setTimeout(connectStream, delay);
-} else {
-if(ui&&ui.logId){appendLog(ui.logId,"Stream disconnected after "+MAX_RECONNECT+" retries.");}
-setRunUI(ui,false);
+ reconnectAttempts++;
+ if(reconnectAttempts <= MAX_RECONNECT){
+ var delay = Math.min(1000 * Math.pow(1.5, reconnectAttempts-1), 8000);
+ setTimeout(connectStream, delay);
+ } else {
+ if(ui&&ui.logId){appendLog(ui.logId,"Stream disconnected.");}
+ setRunUI(ui,false);
 ACTIVE_RUN=false;
 ACTIVE_JOB_ID=null;
 }
@@ -742,11 +788,11 @@ var r=await fetch(WEBAPP_API_BASE+"/webapp/run",{method:"POST",headers:{"Content
 command:payload.command,text:payload.text,user_id:auth.uid,user_name:auth.uname,chat_id:auth.uid,init_data:auth.initData,session_token:auth.sessionToken,notify_group:payload.notify_group,show_card:payload.show_card
 })});
 var data=await r.json();
-if(!data||!data.ok){setResult("Error: "+((data&&data.error)||"run failed"));return;}
+if(!data||!data.ok){if(ui&&ui.logId){appendLog(ui.logId,"Error: "+((data&&data.error)||"run failed"));} if(ui&&ui.stateId){setText(ui.stateId,"Error");} return;}
 var out=cleanOutput((data.messages&&data.messages.length)?data.messages.join("\n\n"):"No messages returned.");
-setResult(out);
+if(ui&&ui.logId&&out){appendLog(ui.logId,out);}
 fillDetails(out);
-}catch(e){setResult("Network/API error: "+(e&&e.message?e.message:"unknown"));}
+}catch(e){var emsg="Network/API error: "+(e&&e.message?e.message:"unknown");if(ui&&ui.logId){appendLog(ui.logId,emsg);} if(ui&&ui.stateId){setText(ui.stateId,"Network error");}}
 finally{
 if(waitTicker){clearInterval(waitTicker); waitTicker=null;}
 ACTIVE_FETCH=null;
@@ -758,11 +804,12 @@ for(var i=0;i<cards.length;i++){
 (function(card){card.addEventListener("click",function(){
 var cmd=card.getAttribute("data-cmd")||"";
 if(cmd==="/co"){
-openModal("Stripe Charge","<div class='seg'><button id='sUrl' class='active'>Server 1</button><button id='sUrl2'>Server 2</button></div><input id='fUrl' class='f-input' placeholder='🔗 Checkout URL'><input id='fCard' class='f-input' placeholder='💳 Card (cc|mm|yy|cvv)'><div class='detail-card'><div class='detail-row'><span>📣 Send Group Log</span><span><input type='checkbox' id='fNotify' checked></span></div><div class='detail-row'><span>🪪 Show Card In Group</span><span><input type='checkbox' id='fShow'></span></div></div><div class='status-line' id='st'>Idle</div><div class='runner-head'><div class='runner-stat'><b id='rs_hit'>0</b><span>HIT</span></div><div class='runner-stat'><b id='rs_3ds'>0</b><span>3DS</span></div><div class='runner-stat'><b id='rs_dec'>0</b><span>DECLINED</span></div></div><div class='log-pane' id='fLog'></div><div class='detail-card'><div class='detail-row'><span>🛍 Merchant</span><span id='dMerchant'>-</span></div><div class='detail-row'><span>💰 Amount</span><span id='dAmount'>-</span></div><div class='detail-row'><span>🎯 Attempts</span><span id='dAttempts'>-</span></div></div><button class='f-btn' id='fRun'>Start</button><button class='stop-btn' id='fStop'>Stop</button>");
+openModal("Stripe Charge","<div class='seg'><button id='sUrl' class='active'>Server 1</button><button id='sUrl2'>Server 2</button></div>"+urlInputField("fUrl","🔗 Checkout URL","fPaste")+"<input id='fCard' class='f-input' placeholder='💳 Card (cc|mm|yy|cvv)'><div class='detail-card'><div class='detail-row'><span>📣 Send Group Log</span><span><input type='checkbox' id='fNotify' checked></span></div><div class='detail-row'><span>🪪 Show Card In Group</span><span><input type='checkbox' id='fShow'></span></div></div><div class='status-line' id='st'>Idle</div><div class='runner-head'><div class='runner-stat'><b id='rs_hit'>0</b><span>HIT</span></div><div class='runner-stat'><b id='rs_3ds'>0</b><span>3DS</span></div><div class='runner-stat'><b id='rs_dec'>0</b><span>DECLINED</span></div></div><div class='log-pane' id='fLog'></div><div class='detail-card'><div class='detail-row'><span>🛍 Merchant</span><span id='dMerchant'>-</span></div><div class='detail-row'><span>💰 Amount</span><span id='dAmount'>-</span></div><div class='detail-row'><span>🎯 Attempts</span><span id='dAttempts'>-</span></div></div><button class='f-btn' id='fRun'>Start</button><button class='stop-btn' id='fStop'>Stop</button>");
 var mode="url";
 document.getElementById("sUrl").onclick=function(){mode="url";this.className="active";document.getElementById("sUrl2").className="";};
 document.getElementById("sUrl2").onclick=function(){mode="url2";this.className="active";document.getElementById("sUrl").className="";};
-document.getElementById("fRun").onclick=function(){runApi({command:mode,text:"/"+mode+" "+getVal("fUrl")+" "+getVal("fCard"),notify_group:document.getElementById("fNotify").checked,show_card:document.getElementById("fShow").checked},{stateId:"st",logId:"fLog",resultId:"fRes",startBtnId:"fRun",statsId:"rs",realtime:true});};
+bindPasteButton("fPaste","fUrl","st","fLog");
+document.getElementById("fRun").onclick=function(){if(!getVal("fUrl")||!getVal("fCard")){appendLog("fLog","Enter checkout URL and card first.");setText("st","Missing input");return;}runApi({command:mode,text:"/"+mode+" "+getVal("fUrl")+" "+getVal("fCard"),notify_group:document.getElementById("fNotify").checked,show_card:document.getElementById("fShow").checked},{stateId:"st",logId:"fLog",startBtnId:"fRun",statsId:"rs",realtime:true});};
 document.getElementById("fStop").onclick=async function(){
 if(ACTIVE_JOB_ID){
 try{await fetch(WEBAPP_API_BASE+"/webapp/stop/"+ACTIVE_JOB_ID,{method:"POST"});}catch(e){}
@@ -775,10 +822,11 @@ if(ACTIVE_FETCH){ACTIVE_FETCH.abort();appendLog("fLog","Stopped by user.");setTe
 return;
 }
 if(cmd==="/bin"){
-openModal("BIN Charge","<div class='seg'><button id='sCo' class='active'>Server 1</button><button id='sCo2'>Server 2</button></div><input id='fUrl' class='f-input' placeholder='🔗 Checkout URL'><input id='fBin' class='f-input' placeholder='🎯 BIN (e.g. 474472)'><div class='bin-tools'><select id='fSavedBins'></select><button id='fLoadBin' class='mini'>Use Selected</button></div><div class='status-line' id='fBinHint'>Saved BINs: 0</div><div class='seg'><button id='fSaveBin'>Save Current BIN</button><button id='fDelBin'>Delete Selected</button></div><div class='detail-card'><div class='detail-row'><span>📣 Send Group Log</span><span><input type='checkbox' id='fNotify' checked></span></div><div class='detail-row'><span>🪪 Show Card In Group</span><span><input type='checkbox' id='fShow'></span></div></div><div class='status-line' id='st'>Idle</div><div class='runner-head'><div class='runner-stat'><b id='rs_hit'>0</b><span>HIT</span></div><div class='runner-stat'><b id='rs_3ds'>0</b><span>3DS</span></div><div class='runner-stat'><b id='rs_dec'>0</b><span>DECLINED</span></div></div><div class='log-pane' id='fLog'></div><div class='detail-card'><div class='detail-row'><span>🛍 Merchant</span><span id='dMerchant'>-</span></div><div class='detail-row'><span>💰 Amount</span><span id='dAmount'>-</span></div><div class='detail-row'><span>🎯 Attempts</span><span id='dAttempts'>-</span></div></div><button class='f-btn' id='fRun'>Start</button><button class='stop-btn' id='fStop'>Stop</button>");
+openModal("BIN Charge","<div class='seg'><button id='sCo' class='active'>Server 1</button><button id='sCo2'>Server 2</button></div>"+urlInputField("fUrl","🔗 Checkout URL","fPaste")+"<input id='fBin' class='f-input' placeholder='🎯 BIN (e.g. 474472)'><div class='bin-tools'><select id='fSavedBins'></select><button id='fLoadBin' class='mini'>Use Selected</button></div><div class='status-line' id='fBinHint'>Saved BINs: 0</div><div class='seg'><button id='fSaveBin'>Save Current BIN</button><button id='fDelBin'>Delete Selected</button></div><div class='detail-card'><div class='detail-row'><span>📣 Send Group Log</span><span><input type='checkbox' id='fNotify' checked></span></div><div class='detail-row'><span>🪪 Show Card In Group</span><span><input type='checkbox' id='fShow'></span></div></div><div class='status-line' id='st'>Idle</div><div class='runner-head'><div class='runner-stat'><b id='rs_hit'>0</b><span>HIT</span></div><div class='runner-stat'><b id='rs_3ds'>0</b><span>3DS</span></div><div class='runner-stat'><b id='rs_dec'>0</b><span>DECLINED</span></div></div><div class='log-pane' id='fLog'></div><div class='detail-card'><div class='detail-row'><span>🛍 Merchant</span><span id='dMerchant'>-</span></div><div class='detail-row'><span>💰 Amount</span><span id='dAmount'>-</span></div><div class='detail-row'><span>🎯 Attempts</span><span id='dAttempts'>-</span></div></div><button class='f-btn' id='fRun'>Start</button><button class='stop-btn' id='fStop'>Stop</button>");
 var mode="co";
 document.getElementById("sCo").onclick=function(){mode="co";this.className="active";document.getElementById("sCo2").className="";};
 document.getElementById("sCo2").onclick=function(){mode="co2";this.className="active";document.getElementById("sCo").className="";};
+bindPasteButton("fPaste","fUrl","st","fLog");
 refreshSavedBinSelect("fSavedBins","fBinHint");
 document.getElementById("fSavedBins").onchange=function(){
 var v=getVal("fSavedBins");
@@ -808,7 +856,7 @@ setSavedBins(arr);
 refreshSavedBinSelect("fSavedBins","fBinHint");
 appendLog("fLog","Deleted BIN: "+v);
 };
-document.getElementById("fRun").onclick=function(){runApi({command:mode,text:"/"+mode+" "+getVal("fUrl")+" "+getVal("fBin"),notify_group:document.getElementById("fNotify").checked,show_card:document.getElementById("fShow").checked},{stateId:"st",logId:"fLog",resultId:"fRes",startBtnId:"fRun",statsId:"rs",realtime:true});};
+document.getElementById("fRun").onclick=function(){if(!getVal("fUrl")||!getVal("fBin")){appendLog("fLog","Enter checkout URL and BIN first.");setText("st","Missing input");return;}runApi({command:mode,text:"/"+mode+" "+getVal("fUrl")+" "+getVal("fBin"),notify_group:document.getElementById("fNotify").checked,show_card:document.getElementById("fShow").checked},{stateId:"st",logId:"fLog",startBtnId:"fRun",statsId:"rs",realtime:true});};
 document.getElementById("fStop").onclick=async function(){
 if(ACTIVE_JOB_ID){
 try{await fetch(WEBAPP_API_BASE+"/webapp/stop/"+ACTIVE_JOB_ID,{method:"POST"});}catch(e){}
@@ -821,8 +869,9 @@ if(ACTIVE_FETCH){ACTIVE_FETCH.abort();appendLog("fLog","Stopped by user.");setTe
 return;
 }
 if(cmd==="/ay"){
-openModal("Adyen Charge","<input id='fUrl' class='f-input' placeholder='Adyen URL'><input id='fCard' class='f-input' placeholder='Card (cc|mm|yy|cvv)'><div class='detail-card'><div class='detail-row'><span>📣 Send Group Log</span><span><input type='checkbox' id='fNotify' checked></span></div><div class='detail-row'><span>🪪 Show Card In Group</span><span><input type='checkbox' id='fShow'></span></div></div><div class='status-line' id='st'>Idle</div><div class='runner-head'><div class='runner-stat'><b id='rs_hit'>0</b><span>HIT</span></div><div class='runner-stat'><b id='rs_3ds'>0</b><span>3DS</span></div><div class='runner-stat'><b id='rs_dec'>0</b><span>DECLINED</span></div></div><div class='log-pane' id='fLog'></div><button class='f-btn' id='fRun'>Start</button><button class='stop-btn' id='fStop'>Stop</button>");
-document.getElementById("fRun").onclick=function(){runApi({command:"ay",text:"/ay "+getVal("fUrl")+" "+getVal("fCard"),notify_group:document.getElementById("fNotify").checked,show_card:document.getElementById("fShow").checked},{stateId:"st",logId:"fLog",resultId:"fRes",startBtnId:"fRun",statsId:"rs",realtime:true});};
+openModal("Adyen Charge",urlInputField("fUrl","Adyen URL","fPaste")+"<input id='fCard' class='f-input' placeholder='Card (cc|mm|yy|cvv)'><div class='detail-card'><div class='detail-row'><span>📣 Send Group Log</span><span><input type='checkbox' id='fNotify' checked></span></div><div class='detail-row'><span>🪪 Show Card In Group</span><span><input type='checkbox' id='fShow'></span></div></div><div class='status-line' id='st'>Idle</div><div class='runner-head'><div class='runner-stat'><b id='rs_hit'>0</b><span>HIT</span></div><div class='runner-stat'><b id='rs_3ds'>0</b><span>3DS</span></div><div class='runner-stat'><b id='rs_dec'>0</b><span>DECLINED</span></div></div><div class='log-pane' id='fLog'></div><button class='f-btn' id='fRun'>Start</button><button class='stop-btn' id='fStop'>Stop</button>");
+bindPasteButton("fPaste","fUrl","st","fLog");
+document.getElementById("fRun").onclick=function(){if(!getVal("fUrl")||!getVal("fCard")){appendLog("fLog","Enter Adyen URL and card first.");setText("st","Missing input");return;}runApi({command:"ay",text:"/ay "+getVal("fUrl")+" "+getVal("fCard"),notify_group:document.getElementById("fNotify").checked,show_card:document.getElementById("fShow").checked},{stateId:"st",logId:"fLog",startBtnId:"fRun",statsId:"rs",realtime:true});};
 document.getElementById("fStop").onclick=async function(){
 if(ACTIVE_JOB_ID){
 try{await fetch(WEBAPP_API_BASE+"/webapp/stop/"+ACTIVE_JOB_ID,{method:"POST"});}catch(e){}
@@ -835,8 +884,9 @@ if(ACTIVE_FETCH){ACTIVE_FETCH.abort();appendLog("fLog","Stopped by user.");setTe
 return;
 }
 if(cmd==="/aybin"){
-openModal("Adyen BIN","<input id='fUrl' class='f-input' placeholder='Adyen URL'><input id='fBin' class='f-input' placeholder='BIN'><div class='detail-card'><div class='detail-row'><span>📣 Send Group Log</span><span><input type='checkbox' id='fNotify' checked></span></div><div class='detail-row'><span>🪪 Show Card In Group</span><span><input type='checkbox' id='fShow'></span></div></div><div class='status-line' id='st'>Idle</div><div class='runner-head'><div class='runner-stat'><b id='rs_hit'>0</b><span>HIT</span></div><div class='runner-stat'><b id='rs_3ds'>0</b><span>3DS</span></div><div class='runner-stat'><b id='rs_dec'>0</b><span>DECLINED</span></div></div><div class='log-pane' id='fLog'></div><button class='f-btn' id='fRun'>Start</button><button class='stop-btn' id='fStop'>Stop</button>");
-document.getElementById("fRun").onclick=function(){runApi({command:"ay",text:"/ay "+getVal("fUrl")+" "+getVal("fBin"),notify_group:document.getElementById("fNotify").checked,show_card:document.getElementById("fShow").checked},{stateId:"st",logId:"fLog",resultId:"fRes",startBtnId:"fRun",statsId:"rs",realtime:true});};
+openModal("Adyen BIN",urlInputField("fUrl","Adyen URL","fPaste")+"<input id='fBin' class='f-input' placeholder='BIN'><div class='detail-card'><div class='detail-row'><span>📣 Send Group Log</span><span><input type='checkbox' id='fNotify' checked></span></div><div class='detail-row'><span>🪪 Show Card In Group</span><span><input type='checkbox' id='fShow'></span></div></div><div class='status-line' id='st'>Idle</div><div class='runner-head'><div class='runner-stat'><b id='rs_hit'>0</b><span>HIT</span></div><div class='runner-stat'><b id='rs_3ds'>0</b><span>3DS</span></div><div class='runner-stat'><b id='rs_dec'>0</b><span>DECLINED</span></div></div><div class='log-pane' id='fLog'></div><button class='f-btn' id='fRun'>Start</button><button class='stop-btn' id='fStop'>Stop</button>");
+bindPasteButton("fPaste","fUrl","st","fLog");
+document.getElementById("fRun").onclick=function(){if(!getVal("fUrl")||!getVal("fBin")){appendLog("fLog","Enter Adyen URL and BIN first.");setText("st","Missing input");return;}runApi({command:"ay",text:"/ay "+getVal("fUrl")+" "+getVal("fBin"),notify_group:document.getElementById("fNotify").checked,show_card:document.getElementById("fShow").checked},{stateId:"st",logId:"fLog",startBtnId:"fRun",statsId:"rs",realtime:true});};
 document.getElementById("fStop").onclick=async function(){
 if(ACTIVE_JOB_ID){
 try{await fetch(WEBAPP_API_BASE+"/webapp/stop/"+ACTIVE_JOB_ID,{method:"POST"});}catch(e){}
@@ -849,7 +899,7 @@ if(ACTIVE_FETCH){ACTIVE_FETCH.abort();appendLog("fLog","Stopped by user.");setTe
 return;
 }
  if(cmd==="/proxy"){
- openModal("Proxy Manager","<textarea id='fProxies' class='f-input' style='min-height:120px' placeholder='host:port:user:pass&#10;user:pass@host:port'></textarea><button class='f-btn' id='fAddProxy'>Add Proxy</button><button class='f-btn' id='fCheckAllProxy'>Check All Saved Proxies</button><div class='proxy-stack' id='proxyList'></div><div class='log-pane' id='proxyLog'></div>");
+ openModal("Proxy Manager","<textarea id='fProxies' class='f-input' style='min-height:120px' placeholder='host:port:user:pass&#10;user:pass@host:port'></textarea><button class='f-btn' id='fAddProxy'>Add Proxy</button><button class='f-btn' id='fCheckAllProxy'>Check All Saved Proxies</button><div id='proxySummary'></div><div class='proxy-stack' id='proxyList'></div><div class='log-pane' id='proxyLog'></div>");
  loadProxyManager();
  document.getElementById("fAddProxy").onclick=async function(){
  var txt=getVal("fProxies"); if(!txt){appendLog("proxyLog","Enter at least 1 proxy."); return;}
@@ -863,14 +913,17 @@ return;
  loadProxyManager();
  };
  document.getElementById("fCheckAllProxy").onclick=async function(){
- appendLog("proxyLog","Checking saved proxies...");
+ setHtml("proxySummary","<div class='proxy-status info'>Checking all saved proxies...</div>");
  var data=await proxyApi("/webapp/proxy/check",{});
- if(!data.ok){appendLog("proxyLog",data.error||"Check failed.");return;}
+ if(!data.ok){setHtml("proxySummary","<div class='proxy-status bad'>"+(data.error||"Check failed")+"</div>");return;}
  renderProxyList((data.results||[]).map(function(x){return x.proxy;}));
  var results=data.results||[];
+ var alive=0;
  for(var i=0;i<results.length;i++){
- setText("proxyMeta_"+i,(results[i].status||"dead").toUpperCase()+" • "+(results[i].response_time||"--")+" • "+(results[i].external_ip||results[i].error||"N/A"));
+ if(String(results[i].status||"").toLowerCase()==="alive"){alive++;}
+ setHtml("proxyMeta_"+i,formatProxyState(results[i]));
  }
+ setHtml("proxySummary","<div class='proxy-status "+(alive===results.length&&results.length?'good':'info')+"'>Checked "+results.length+" proxies. Live: "+alive+" • Dead: "+(results.length-alive)+"</div>");
  };
  return;
  }
