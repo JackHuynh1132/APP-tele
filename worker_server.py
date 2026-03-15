@@ -13,6 +13,7 @@ import aiohttp
 from aiohttp import web
 
 from worker_task_runner import run_worker_task, run_worker_task_stream
+from commands import co as co_module
 
 
 WORKER_API_SECRET = os.getenv("WORKER_API_SECRET", "").strip()
@@ -37,6 +38,7 @@ AUTH_SESSION_TTL_SECONDS = int(os.getenv("WEBAPP_AUTH_SESSION_TTL_SECONDS", "864
 JOBS: Dict[str, Dict[str, Any]] = {}
 AUTH_CODES: Dict[str, Dict[str, Any]] = {}
 AUTH_SESSIONS: Dict[str, Dict[str, Any]] = {}
+HISTORY_FILE = "webapp_hit_history.json"
 
 
 def _is_allowed_origin(origin: str) -> bool:
@@ -183,6 +185,141 @@ def _resolve_webapp_user(payload: Dict[str, Any]) -> Dict[str, Any]:
     if session_user:
         return session_user
     return {}
+
+
+def _load_hit_history_data() -> Dict[str, Any]:
+    try:
+        if not os.path.exists(HISTORY_FILE):
+            return {}
+        with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return data if isinstance(data, dict) else {}
+    except Exception:
+        return {}
+
+
+def _build_leaderboard(current_user_id: int = 0) -> Dict[str, Any]:
+    raw = _load_hit_history_data()
+    board = []
+    for user_id, entries in raw.items():
+        if not isinstance(entries, list):
+            continue
+        total_hits = len(entries)
+        if total_hits <= 0:
+            continue
+        latest = entries[-1] if entries else {}
+        board.append(
+            {
+                "user_id": int(str(user_id or "0") or 0),
+                "user_name": (latest.get("user_name") or f"User {user_id}").strip(),
+                "hits": total_hits,
+                "latest_time": latest.get("time") or "",
+            }
+        )
+    board.sort(key=lambda item: (-int(item.get("hits") or 0), str(item.get("latest_time") or ""), int(item.get("user_id") or 0)))
+    for idx, item in enumerate(board, start=1):
+        item["rank"] = idx
+    my_rank = None
+    my_hits = 0
+    for item in board:
+        if int(item.get("user_id") or 0) == int(current_user_id or 0):
+            my_rank = int(item.get("rank") or 0)
+            my_hits = int(item.get("hits") or 0)
+            break
+    return {"leaderboard": board[:10], "rank": my_rank, "hits": my_hits}
+
+
+async def webapp_leaderboard_handler(request: web.Request) -> web.Response:
+    try:
+        user = _resolve_webapp_user(
+            {
+                "session_token": request.headers.get("X-Session-Token", ""),
+                "init_data": request.headers.get("X-Telegram-Init-Data", ""),
+            }
+        )
+    except web.HTTPUnauthorized as exc:
+        return web.Response(status=exc.status, text=exc.text, content_type="application/json")
+    user_id = int(user.get("id") or 0)
+    data = _build_leaderboard(user_id)
+    return web.json_response({"ok": True, **data})
+
+
+async def webapp_proxy_list_handler(request: web.Request) -> web.Response:
+    try:
+        user = _resolve_webapp_user(
+            {
+                "session_token": request.headers.get("X-Session-Token", ""),
+                "init_data": request.headers.get("X-Telegram-Init-Data", ""),
+            }
+        )
+    except web.HTTPUnauthorized as exc:
+        return web.Response(status=exc.status, text=exc.text, content_type="application/json")
+    user_id = int(user.get("id") or 0)
+    proxies = co_module.get_user_proxies(user_id)
+    return web.json_response({"ok": True, "proxies": proxies, "count": len(proxies)})
+
+
+async def webapp_proxy_add_handler(request: web.Request) -> web.Response:
+    try:
+        payload: Dict[str, Any] = await request.json()
+    except Exception:
+        return web.json_response({"ok": False, "error": "invalid json"}, status=400)
+    try:
+        user = _resolve_webapp_user(payload)
+    except web.HTTPUnauthorized as exc:
+        return web.Response(status=exc.status, text=exc.text, content_type="application/json")
+    user_id = int(user.get("id") or 0)
+    proxy = str(payload.get("proxy") or "").strip()
+    if not proxy:
+        return web.json_response({"ok": False, "error": "missing proxy"}, status=400)
+    if not co_module.get_proxy_url(proxy):
+        return web.json_response({"ok": False, "error": "invalid proxy format"}, status=400)
+    before = co_module.get_user_proxies(user_id)
+    existed = proxy in before
+    co_module.add_user_proxy(user_id, proxy)
+    after = co_module.get_user_proxies(user_id)
+    return web.json_response({"ok": True, "added": not existed, "exists": existed, "proxy": proxy, "count": len(after), "proxies": after})
+
+
+async def webapp_proxy_remove_handler(request: web.Request) -> web.Response:
+    try:
+        payload: Dict[str, Any] = await request.json()
+    except Exception:
+        return web.json_response({"ok": False, "error": "invalid json"}, status=400)
+    try:
+        user = _resolve_webapp_user(payload)
+    except web.HTTPUnauthorized as exc:
+        return web.Response(status=exc.status, text=exc.text, content_type="application/json")
+    user_id = int(user.get("id") or 0)
+    proxy = str(payload.get("proxy") or "").strip()
+    if not proxy:
+        return web.json_response({"ok": False, "error": "missing proxy"}, status=400)
+    removed = co_module.remove_user_proxy(user_id, proxy)
+    after = co_module.get_user_proxies(user_id)
+    return web.json_response({"ok": bool(removed), "removed": bool(removed), "proxy": proxy, "count": len(after), "proxies": after})
+
+
+async def webapp_proxy_check_handler(request: web.Request) -> web.Response:
+    try:
+        payload: Dict[str, Any] = await request.json()
+    except Exception:
+        return web.json_response({"ok": False, "error": "invalid json"}, status=400)
+    try:
+        user = _resolve_webapp_user(payload)
+    except web.HTTPUnauthorized as exc:
+        return web.Response(status=exc.status, text=exc.text, content_type="application/json")
+    user_id = int(user.get("id") or 0)
+    proxy = str(payload.get("proxy") or "").strip()
+    if proxy:
+        if not co_module.get_proxy_url(proxy):
+            return web.json_response({"ok": False, "error": "invalid proxy format"}, status=400)
+        result = await co_module.check_proxy_alive(proxy)
+        return web.json_response({"ok": True, "result": result})
+    proxies = co_module.get_user_proxies(user_id)
+    if not proxies:
+        return web.json_response({"ok": True, "results": [], "count": 0})
+    results = await co_module.check_proxies_batch(proxies, max_threads=min(10, max(1, len(proxies))))
+    return web.json_response({"ok": True, "results": results, "count": len(results)})
 
 
 async def webapp_request_code_handler(request: web.Request) -> web.Response:
@@ -483,6 +620,11 @@ def create_app() -> web.Application:
     app.router.add_post("/run", run_handler)
     app.router.add_post("/webapp/auth/request-code", webapp_request_code_handler)
     app.router.add_post("/webapp/auth/verify-code", webapp_verify_code_handler)
+    app.router.add_get("/webapp/leaderboard", webapp_leaderboard_handler)
+    app.router.add_get("/webapp/proxy/list", webapp_proxy_list_handler)
+    app.router.add_post("/webapp/proxy/add", webapp_proxy_add_handler)
+    app.router.add_post("/webapp/proxy/remove", webapp_proxy_remove_handler)
+    app.router.add_post("/webapp/proxy/check", webapp_proxy_check_handler)
     app.router.add_post("/webapp/run", webapp_run_handler)
     app.router.add_post("/webapp/start", webapp_start_handler)
     app.router.add_get("/webapp/stream/{job_id}", webapp_stream_handler)
