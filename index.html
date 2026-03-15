@@ -58,13 +58,7 @@ color:var(--text);min-height:100vh;min-height:100dvh;overflow-x:hidden}
 .login-bg img{width:100%;height:100%;object-fit:cover;filter:saturate(.8) brightness(.72)}
 .login-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,10,16,.28),rgba(8,10,16,.82) 62%,rgba(8,10,16,.96));z-index:1}
 .card{background:rgba(16,18,25,.78);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.08);border-radius:28px;padding:34px 24px;text-align:center;width:100%;max-width:360px;z-index:2;margin-bottom:22px;box-shadow:0 24px 50px rgba(0,0,0,.35)}
-.aw{position:relative;width:84px;height:84px;margin:0 auto 16px}
-.ar{position:absolute;top:-4px;left:-4px;width:92px;height:92px;border-radius:50%;border:2px solid transparent;border-top-color:#88a0ff;border-right-color:rgba(255,255,255,.55);animation:sp 2.4s linear infinite}
-@keyframes sp{to{transform:rotate(360deg)}}
-.ai{width:84px;height:84px;border-radius:50%;background:linear-gradient(135deg,#243460,#4a6dff 58%,#f15b3e);display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;color:#fff;overflow:hidden}
-.ai img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .card h1{font-size:24px;color:#fff;letter-spacing:1px;margin-bottom:6px}
-.card .uid{font-size:12px;color:rgba(255,255,255,.5);letter-spacing:1px;margin-bottom:20px}
 .dv{width:42px;height:2px;background:linear-gradient(90deg,transparent,rgba(136,160,255,.7),transparent);margin:0 auto 18px}
 .bl{width:100%;padding:15px;background:linear-gradient(135deg,#2f4ad9,#4a6dff 55%,#8ca8ff);color:#fff;border:0;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:1px;position:relative;overflow:hidden;box-shadow:0 14px 34px rgba(63,102,255,.36)}
 .otp-form{display:flex;flex-direction:column;gap:10px;margin-top:8px}
@@ -91,7 +85,7 @@ radial-gradient(circle at top center,rgba(63,102,255,.18),transparent 24%);z-ind
 .brand-block{display:flex;flex-direction:column;gap:2px}
 .brand-title{font-size:28px;font-weight:700;letter-spacing:.4px;color:#fff}
 .brand-sub{font-size:12px;color:#90a0bf;letter-spacing:2px;text-transform:uppercase}
-.hero-card,.usage-card,.quick-card,.recent-card{background:rgba(17,19,27,.86);border:1px solid rgba(255,255,255,.06);border-radius:26px;backdrop-filter:blur(16px);box-shadow:0 18px 40px rgba(0,0,0,.24)}
+.hero-card,.usage-card,.quick-card,.leaderboard-card{background:rgba(17,19,27,.86);border:1px solid rgba(255,255,255,.06);border-radius:26px;backdrop-filter:blur(16px);box-shadow:0 18px 40px rgba(0,0,0,.24)}
 .hero-card{padding:18px 18px 16px;margin-bottom:16px;overflow:hidden;position:relative}
 .hero-card:before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,rgba(63,102,255,.16),transparent 32%,rgba(241,91,62,.08) 72%,transparent);pointer-events:none}
 .hero-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:12px;position:relative;z-index:1}
@@ -105,13 +99,13 @@ radial-gradient(circle at top center,rgba(63,102,255,.18),transparent 24%);z-ind
 .hero-title{font-size:34px;line-height:1;color:#fff}
 .hero-note{font-size:13px;color:#aab2c6;margin-top:8px;max-width:320px}
 .hero-mark{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#20336f,#3658df 60%,#f15b3e);display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 12px 30px rgba(27,47,132,.4)}
-.hero-stats{display:grid;grid-template-columns:1fr;gap:10px;position:relative;z-index:1}
+.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;position:relative;z-index:1}
 .hero-stat{padding:14px;border-radius:18px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05)}
 .hero-stat .v{display:block;font-size:22px;font-weight:700;color:#fff}
 .hero-stat .k{display:block;font-size:11px;color:#8f96aa;letter-spacing:1px;text-transform:uppercase;margin-top:3px}
 .section-title{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:700;color:#fff;margin:0 0 12px}
 .section-title .dot{width:32px;height:32px;border-radius:12px;background:rgba(63,102,255,.16);display:flex;align-items:center;justify-content:center;color:#8ca8ff}
-.usage-card,.quick-card,.recent-card{padding:16px;margin-bottom:16px}
+.usage-card,.quick-card,.leaderboard-card{padding:16px;margin-bottom:16px}
 .usage-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
 .usage-item{padding:16px;border-radius:20px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05)}
 .usage-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px}
@@ -138,12 +132,21 @@ radial-gradient(circle at top center,rgba(63,102,255,.18),transparent 24%);z-ind
 .tc[data-cmd="/status"]{background:linear-gradient(180deg,rgba(28,66,46,.86),rgba(21,39,29,.92))}
 .tc[data-cmd="/gen"]{background:linear-gradient(180deg,rgba(68,45,27,.86),rgba(44,30,20,.92))}
 .tc[data-cmd="/redeem"]{background:linear-gradient(180deg,rgba(79,32,49,.86),rgba(45,21,29,.92))}
-.recent-list{display:flex;flex-direction:column;gap:10px}
-.recent-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 14px;border-radius:18px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05)}
-.recent-meta{display:flex;flex-direction:column;gap:4px}
-.recent-name{font-size:14px;color:#fff}
-.recent-sub{font-size:12px;color:#9ea7bc}
-.recent-badge{padding:5px 9px;border-radius:999px;background:rgba(63,102,255,.14);color:#a8bbff;font-size:11px}
+.leaderboard-list{display:flex;flex-direction:column;gap:10px}
+.leaderboard-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 14px;border-radius:18px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05)}
+.leaderboard-meta{display:flex;align-items:center;gap:12px;min-width:0}
+.leaderboard-rank{width:34px;height:34px;border-radius:12px;background:rgba(63,102,255,.16);display:flex;align-items:center;justify-content:center;color:#a8bbff;font-size:13px;font-weight:700;flex:none}
+.leaderboard-name-wrap{display:flex;flex-direction:column;gap:4px;min-width:0}
+.leaderboard-name{font-size:14px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+.leaderboard-sub{font-size:12px;color:#9ea7bc}
+.leaderboard-badge{padding:5px 9px;border-radius:999px;background:rgba(56,211,159,.14);color:#9ff1cf;font-size:11px;flex:none}
+.proxy-stack{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.proxy-item{padding:14px;border-radius:18px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05)}
+.proxy-line{font-size:13px;color:#fff;word-break:break-all;line-height:1.45}
+.proxy-sub{font-size:12px;color:#99a4bc;margin-top:6px}
+.proxy-actions{display:flex;gap:8px;margin-top:12px}
+.mini-btn{flex:1;padding:11px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:#eef2ff;font-weight:700}
+.mini-btn.danger{background:rgba(240,70,101,.12);border-color:rgba(240,70,101,.24);color:#ffd7de}
 .dash-footer{padding:12px 0 2px;text-align:center;font-size:11px;color:#677188;letter-spacing:2px;text-transform:uppercase}
 .modal{display:none;position:fixed;z-index:9998;inset:0;background:rgba(6,7,12,.72);backdrop-filter:blur(14px);align-items:flex-end}
 .modal.show{display:flex}
@@ -210,8 +213,7 @@ radial-gradient(circle at top center,rgba(63,102,255,.18),transparent 24%);z-ind
 <div class="login-bg"><img src="logo.jpg" alt="bg"></div>
 <div class="login-overlay"></div>
 <div class="card">
-<div class="aw"><div class="ar"></div><div class="ai" id="avatar"></div></div>
-<h1>J.HUYNH BOT</h1><div class="uid" id="uid"></div><div class="dv"></div>
+<h1>J.HUYNH BOT</h1><div class="dv"></div>
 <div class="otp-form">
 <div class="otp-note">Enter your Telegram ID, request an OTP from the bot, then paste the code here to unlock the control room.</div>
 <div class="otp-row">
@@ -260,6 +262,8 @@ radial-gradient(circle at top center,rgba(63,102,255,.18),transparent 24%);z-ind
 </div>
 <div class="hero-stats">
 <div class="hero-stat"><span class="v" id="heroUid">--</span><span class="k">Connected Telegram ID</span></div>
+<div class="hero-stat"><span class="v" id="heroHitCount">0</span><span class="k">Your Total HIT</span></div>
+<div class="hero-stat"><span class="v" id="heroRank">#--</span><span class="k">Your Rank</span></div>
 </div>
 </div>
 <div class="usage-card">
@@ -284,12 +288,10 @@ radial-gradient(circle at top center,rgba(63,102,255,.18),transparent 24%);z-ind
 <div class="tc" data-cmd="/redeem"><span class="tc-icon">&#127873;</span><div class="tc-name">Redeem</div><div class="tc-desc">Apply your codes inside the same control panel.</div></div>
 </div>
 </div>
-<div class="recent-card">
-<div class="section-title"><span class="dot">&#128339;</span><span>Recent Sessions</span></div>
-<div class="recent-list">
-<div class="recent-item"><div class="recent-meta"><div class="recent-name">CSMacro</div><div class="recent-sub">2 cards · 2 declined · 1093838 VND</div></div><div class="recent-badge">BIN 374355</div></div>
-<div class="recent-item"><div class="recent-meta"><div class="recent-name">AIvideo.com</div><div class="recent-sub">10 cards · 10 declined · 12.50 USD</div></div><div class="recent-badge">BIN 374355</div></div>
-<div class="recent-item"><div class="recent-meta"><div class="recent-name">Stim.io</div><div class="recent-sub">3 cards · 3 declined · 10.00 USD</div></div><div class="recent-badge">Fast log</div></div>
+<div class="leaderboard-card">
+<div class="section-title"><span class="dot">&#127942;</span><span>Top HIT</span></div>
+<div class="leaderboard-list" id="leaderboardList">
+<div class="leaderboard-item"><div class="leaderboard-meta"><div class="leaderboard-rank">#1</div><div class="leaderboard-name-wrap"><div class="leaderboard-name">Loading...</div><div class="leaderboard-sub">Checking leaderboard</div></div></div><div class="leaderboard-badge">0 HIT</div></div>
 </div>
 </div>
 <div class="dash-footer">J.HUYNH BOT V3 • COLD BLUE CORE / HOT RED EDGE</div>
@@ -361,20 +363,12 @@ setTimeout(function(){loadDiv.className="out";setTimeout(function(){loadDiv.styl
 },120);
 function renderUserProfile(profile){
 var p=profile||null;
-var avatarEl=document.getElementById("avatar");
-var uidEl=document.getElementById("uid");
-var heroUidEl=document.getElementById("heroUid");
-var heroAvatarEl=document.getElementById("heroAvatar");
-var heroUserNameEl=document.getElementById("heroUserName");
+ var heroUidEl=document.getElementById("heroUid");
+ var heroAvatarEl=document.getElementById("heroAvatar");
+ var heroUserNameEl=document.getElementById("heroUserName");
 var heroUserIdEl=document.getElementById("heroUserId");
 var heroTitleEl=document.getElementById("heroTitle");
-if(avatarEl){
-if(p&&p.photo_url){avatarEl.innerHTML="<img src=\""+p.photo_url+"\" alt=\"av\">";}
-else if(p&&(p.first_name||p.username)){avatarEl.textContent=(p.first_name||p.username).charAt(0).toUpperCase();}
-else{avatarEl.textContent="?";}
-}
-if(uidEl){uidEl.textContent=p&&p.id?("ID: "+p.id):"ID: UNKNOWN";}
-if(heroUidEl){heroUidEl.textContent=p&&p.id?String(p.id):"Guest";}
+ if(heroUidEl){heroUidEl.textContent=p&&p.id?String(p.id):"Guest";}
 if(heroAvatarEl){
 if(p&&p.photo_url){heroAvatarEl.innerHTML="<img src=\""+p.photo_url+"\" alt=\"hero-avatar\">";}
 else if(p&&(p.first_name||p.username)){heroAvatarEl.textContent=(p.first_name||p.username).charAt(0).toUpperCase();}
@@ -395,7 +389,76 @@ var otpCode=document.getElementById("otpCode");
 var otpStatus=document.getElementById("otpStatus");
 function setOtpStatus(msg){if(otpStatus){otpStatus.textContent=msg||"";}}
 function getSessionToken(){var s=loadStoredAuth(); return s&&s.session_token?s.session_token:"";}
-function showDash(){renderUserProfile(user|| (storedAuth&&storedAuth.user) || null); dashDiv.className="show";}
+ function getAuthHeaders(){
+ var h={"Content-Type":"application/json"};
+ var s=getSessionToken();
+ if(s){h["X-Session-Token"]=s;}
+ return h;
+ }
+ async function loadLeaderboard(){
+ if(!WEBAPP_API_BASE){return;}
+ try{
+ var res=await fetch(WEBAPP_API_BASE+"/webapp/leaderboard",{headers:getAuthHeaders()});
+ var data=await res.json().catch(function(){return {};});
+ if(!res.ok||!data.ok){return;}
+ setText("heroHitCount",String(data.hits||0));
+ setText("heroRank",data.rank?("#"+data.rank):"#--");
+ var list=document.getElementById("leaderboardList");
+ if(!list){return;}
+ var items=(data.leaderboard||[]);
+ if(!items.length){
+ list.innerHTML="<div class='leaderboard-item'><div class='leaderboard-meta'><div class='leaderboard-rank'>--</div><div class='leaderboard-name-wrap'><div class='leaderboard-name'>No HIT yet</div><div class='leaderboard-sub'>Leaderboard will update automatically</div></div></div><div class='leaderboard-badge'>0 HIT</div></div>";
+ return;
+ }
+ list.innerHTML=items.map(function(item){
+ var mine=(user&&item.user_id&&String(item.user_id)===String(user.id));
+ return "<div class='leaderboard-item'><div class='leaderboard-meta'><div class='leaderboard-rank'>#"+item.rank+"</div><div class='leaderboard-name-wrap'><div class='leaderboard-name'>"+String(item.user_name||("User "+item.user_id)).replace(/</g,"&lt;")+(mine?" (You)":"")+"</div><div class='leaderboard-sub'>User ID: "+item.user_id+"</div></div></div><div class='leaderboard-badge'>"+item.hits+" HIT</div></div>";
+ }).join("");
+ }catch(e){}
+ }
+ function showDash(){renderUserProfile(user|| (storedAuth&&storedAuth.user) || null); dashDiv.className="show"; loadLeaderboard();}
+ async function proxyApi(path, body, method){
+ var res=await fetch(WEBAPP_API_BASE+path,{method:method||"POST",headers:getAuthHeaders(),body:body?JSON.stringify(body):undefined});
+ return await res.json().catch(function(){return {};});
+ }
+ function renderProxyList(items){
+ var list=document.getElementById("proxyList");
+ if(!list){return;}
+ if(!items||!items.length){
+ list.innerHTML="<div class='proxy-item'><div class='proxy-line'>No proxy saved</div><div class='proxy-sub'>Add a proxy, then check or remove it here.</div></div>";
+ return;
+ }
+ list.innerHTML=items.map(function(proxy,idx){
+ return "<div class='proxy-item'><div class='proxy-line'>"+String(proxy).replace(/</g,"&lt;")+"</div><div class='proxy-sub' id='proxyMeta_"+idx+"'>Ready to check</div><div class='proxy-actions'><button class='mini-btn' data-proxy-check='"+idx+"'>Check</button><button class='mini-btn danger' data-proxy-remove='"+idx+"'>Remove</button></div></div>";
+ }).join("");
+ for(var i=0;i<items.length;i++){
+ (function(index){
+ var cb=document.querySelector("[data-proxy-check='"+index+"']");
+ var rb=document.querySelector("[data-proxy-remove='"+index+"']");
+ if(cb){cb.onclick=async function(){
+ setText("proxyMeta_"+index,"Checking...");
+ var data=await proxyApi("/webapp/proxy/check",{proxy:items[index]});
+ if(!data.ok){setText("proxyMeta_"+index,data.error||"Check failed");return;}
+ var r=data.result||{};
+ setText("proxyMeta_"+index,(r.status||"dead").toUpperCase()+" • "+(r.response_time||"--")+" • "+(r.external_ip||r.error||"N/A"));
+ };}
+ if(rb){rb.onclick=async function(){
+ setText("proxyMeta_"+index,"Removing...");
+ var data=await proxyApi("/webapp/proxy/remove",{proxy:items[index]});
+ if(!data.ok&&!data.removed){setText("proxyMeta_"+index,data.error||"Remove failed");return;}
+ renderProxyList(data.proxies||[]);
+ appendLog("proxyLog","Removed proxy: "+items[index]);
+ };}
+ })(i);
+ }
+ }
+ async function loadProxyManager(){
+ if(!WEBAPP_API_BASE){appendLog("proxyLog","Set API Base URL first.");return;}
+ var res=await fetch(WEBAPP_API_BASE+"/webapp/proxy/list",{headers:getAuthHeaders()});
+ var data=await res.json().catch(function(){return {};});
+ if(!data.ok){appendLog("proxyLog",data.error||"Failed to load proxies.");return;}
+ renderProxyList(data.proxies||[]);
+ }
 if(sendOtpBtn){sendOtpBtn.addEventListener("click",async function(){
 var uid=(otpUserId&&otpUserId.value?otpUserId.value.trim():"");
 if(!uid){setOtpStatus("Enter your Telegram user ID first."); return;}
@@ -638,12 +701,14 @@ updateRunnerStats(agg, ui.statsId||"");
 }
 }
 }
-if(e.type==="done"){
-streamDone = true;
-var res=e.result||{};
-var outRaw=(res.messages&&res.messages.length)?res.messages.join("\n\n"):agg.join("\n");
-setResult(cleanOutput(outRaw)||"Done.");
-if(waitTicker){clearInterval(waitTicker); waitTicker=null;}
+ if(e.type==="done"){
+ streamDone = true;
+ var res=e.result||{};
+ var outRaw=(res.messages&&res.messages.length)?res.messages.join("\n\n"):agg.join("\n");
+ if(res.hit){appendLog(ui.logId,res.group_notified?"HIT saved and sent to group.":"HIT saved. Group notification was not sent.");}
+ setResult(cleanOutput(outRaw)||"Done.");
+ loadLeaderboard();
+ if(waitTicker){clearInterval(waitTicker); waitTicker=null;}
 setRunUI(ui,false);
 ACTIVE_RUN=false;
 ACTIVE_JOB_ID=null;
@@ -783,19 +848,32 @@ if(ACTIVE_FETCH){ACTIVE_FETCH.abort();appendLog("fLog","Stopped by user.");setTe
 };
 return;
 }
-if(cmd==="/proxy"){
-openModal("Proxy Manager","<textarea id='fProxies' class='f-input' style='min-height:120px' placeholder='host:port:user:pass&#10;host:port:user:pass'></textarea><button class='f-btn' id='fAddProxy'>Add Proxy</button><button class='f-btn' id='fCheckProxy'>Check Proxy</button><div class='log-pane' id='fLog'></div>");
-document.getElementById("fAddProxy").onclick=async function(){
-var txt=getVal("fProxies"); if(!txt){appendLog("fLog","Enter at least 1 proxy."); return;}
-var lines=txt.split("\n").map(function(x){return x.trim();}).filter(function(x){return x;});
-for(var p=0;p<lines.length;p++){
-await runApi({command:"addproxy",text:"/addproxy "+lines[p]},{logId:"fLog"});
-}
-appendLog("fLog","Proxy add flow completed.");
-};
-document.getElementById("fCheckProxy").onclick=function(){runApi({command:"proxy",text:"/proxy check"},{logId:"fLog"});};
-return;
-}
+ if(cmd==="/proxy"){
+ openModal("Proxy Manager","<textarea id='fProxies' class='f-input' style='min-height:120px' placeholder='host:port:user:pass&#10;user:pass@host:port'></textarea><button class='f-btn' id='fAddProxy'>Add Proxy</button><button class='f-btn' id='fCheckAllProxy'>Check All Saved Proxies</button><div class='proxy-stack' id='proxyList'></div><div class='log-pane' id='proxyLog'></div>");
+ loadProxyManager();
+ document.getElementById("fAddProxy").onclick=async function(){
+ var txt=getVal("fProxies"); if(!txt){appendLog("proxyLog","Enter at least 1 proxy."); return;}
+ var lines=txt.split("\n").map(function(x){return x.trim();}).filter(function(x){return x;});
+ for(var p=0;p<lines.length;p++){
+ var data=await proxyApi("/webapp/proxy/add",{proxy:lines[p]});
+ if(data.ok){appendLog("proxyLog",(data.exists?"Proxy already exists: ":"Added proxy: ")+lines[p]);}
+ else{appendLog("proxyLog","Add failed: "+(data.error||lines[p]));}
+ }
+ document.getElementById("fProxies").value="";
+ loadProxyManager();
+ };
+ document.getElementById("fCheckAllProxy").onclick=async function(){
+ appendLog("proxyLog","Checking saved proxies...");
+ var data=await proxyApi("/webapp/proxy/check",{});
+ if(!data.ok){appendLog("proxyLog",data.error||"Check failed.");return;}
+ renderProxyList((data.results||[]).map(function(x){return x.proxy;}));
+ var results=data.results||[];
+ for(var i=0;i<results.length;i++){
+ setText("proxyMeta_"+i,(results[i].status||"dead").toUpperCase()+" • "+(results[i].response_time||"--")+" • "+(results[i].external_ip||results[i].error||"N/A"));
+ }
+ };
+ return;
+ }
 if(cmd==="/status"){
 openModal("Status & History","<button class='f-btn' id='fStatus'>Load Premium Status</button><button class='f-btn' id='fHist'>Load Hit History</button><div class='detail-card'><div class='detail-row'><span>👤 User ID</span><span id='sUid'>"+(DISPLAY_UID||'-')+"</span></div><div class='detail-row'><span>🕒 Time</span><span id='sTime'>"+new Date().toLocaleString()+"</span></div></div><div class='log-pane' id='fLog'></div>");
 document.getElementById("fStatus").onclick=function(){runApi({command:'status',text:'/mystatus'},{logId:'fLog'});};
